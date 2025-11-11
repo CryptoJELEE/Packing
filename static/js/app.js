@@ -752,7 +752,11 @@ async function handleOrderUpload() {
             }
 
             // 주문서 아이템 표시
-            displayOrderItems(data.matched_items);
+            if (data.matched_items && Array.isArray(data.matched_items)) {
+                displayOrderItems(data.matched_items);
+            } else {
+                displayOrderItems([]);
+            }
             
             // 섹션 표시
             orderItemsSection.style.display = 'block';
@@ -771,22 +775,40 @@ async function handleOrderUpload() {
 
 // 주문서 아이템 표시
 function displayOrderItems(items) {
+    // 안전 체크
+    if (!items || !Array.isArray(items)) {
+        orderItemsList.innerHTML = '<p>아이템 데이터가 없습니다.</p>';
+        return;
+    }
+    
     if (items.length === 0) {
         orderItemsList.innerHTML = '<p>표시할 아이템이 없습니다.</p>';
         return;
     }
 
-    orderItemsList.innerHTML = items.map((item, index) => `
+    orderItemsList.innerHTML = items.map((item, index) => {
+        // 안전한 데이터 접근
+        const whd = item.WHD || [0, 0, 0];
+        const original = item.original || {};
+        const partno = item.partno || 'N/A';
+        const name = item.name || '이름 없음';
+        const weight = item.weight || 0;
+        const typeofItem = item.typeof || 'cube';
+        const category = original.분류 || '기타';
+        const orderQuantity = item.order_quantity || 1;
+        
+        return `
         <div class="item-card" data-index="${index}">
             <div class="item-info">
-                <h4>${item.name}</h4>
-                <p><strong>제품번호:</strong> ${item.partno}</p>
-                <p><strong>주문 수량:</strong> ${item.order_quantity}개</p>
-                <p><strong>크기:</strong> ${item.WHD[0].toFixed(1)} × ${item.WHD[1].toFixed(1)} × ${item.WHD[2].toFixed(1)} cm</p>
-                <p><strong>무게:</strong> ${item.weight} kg | <strong>타입:</strong> ${item.typeof} | <strong>분류:</strong> ${item.original.분류}</p>
+                <h4>${name}</h4>
+                <p><strong>제품번호:</strong> ${partno}</p>
+                <p><strong>주문 수량:</strong> ${orderQuantity}개</p>
+                <p><strong>크기:</strong> ${whd[0].toFixed(1)} × ${whd[1].toFixed(1)} × ${whd[2].toFixed(1)} cm</p>
+                <p><strong>무게:</strong> ${weight} kg | <strong>타입:</strong> ${typeofItem} | <strong>분류:</strong> ${category}</p>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // 상태 메시지 표시 (개선된 버전)

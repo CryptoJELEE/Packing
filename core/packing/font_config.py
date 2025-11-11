@@ -4,61 +4,115 @@ matplotlib 한글 폰트 설정 유틸리티
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+from pathlib import Path
 import platform
 import os
 
+# 프로젝트 내 폰트 디렉토리
+FONT_DIR = Path(__file__).parent.parent.parent / 'fonts'
+
+def download_font_if_needed():
+    """필요시 폰트 다운로드"""
+    font_path = FONT_DIR / 'NanumGothic.ttf'
+    
+    if font_path.exists():
+        return str(font_path)
+    
+    # 폰트 디렉토리 생성
+    FONT_DIR.mkdir(exist_ok=True)
+    
+    # 온라인에서 폰트 다운로드 시도
+    try:
+        import urllib.request
+        # 여러 URL 시도
+        font_urls = [
+            'https://fonts.gstatic.com/ea/nanumgothic/v5/NanumGothic-Regular.ttf',
+            'https://github.com/naver/nanumfont/raw/master/Desktop/NanumGothic.ttf',
+            'https://raw.githubusercontent.com/naver/nanumfont/master/Desktop/NanumGothic.ttf',
+        ]
+        
+        for font_url in font_urls:
+            try:
+                print(f"폰트 다운로드 시도: {font_url}")
+                urllib.request.urlretrieve(font_url, font_path)
+                if font_path.exists() and os.path.getsize(font_path) > 1000:
+                    print(f"폰트 다운로드 완료: {font_path}")
+                    return str(font_path)
+            except Exception as e:
+                print(f"다운로드 실패: {e}")
+                continue
+        
+        return None
+    except Exception as e:
+        print(f"폰트 다운로드 실패: {e}")
+        return None
+
 def setup_korean_font():
-    """한글 폰트 설정"""
+    """한글 폰트 설정 (개선 버전)"""
+    # 1. 프로젝트 내 폰트 파일 시도
+    font_path = download_font_if_needed()
+    
+    if font_path and os.path.exists(font_path):
+        try:
+            # 폰트 파일 직접 로드
+            font_prop = fm.FontProperties(fname=font_path)
+            font_name = font_prop.get_name()
+            
+            # matplotlib 설정
+            plt.rcParams['font.family'] = font_name
+            matplotlib.rcParams['font.family'] = font_name
+            plt.rcParams['axes.unicode_minus'] = False
+            matplotlib.rcParams['axes.unicode_minus'] = False
+            
+            # 폰트 캐시에 추가
+            try:
+                # 폰트 매니저에 폰트 추가
+                fm.fontManager.addfont(font_path)
+            except:
+                pass
+            
+            print(f"폰트 설정 완료 (파일): {font_name}")
+            return font_name
+        except Exception as e:
+            print(f"폰트 파일 로드 실패: {e}")
+    
+    # 2. 시스템 폰트 시도
     system = platform.system()
     
-    # 폰트 설정
     if system == 'Darwin':  # macOS
-        font_list = [
-            'AppleGothic',
-            'Apple SD Gothic Neo',
-            'NanumGothic',
-            'NanumBarunGothic',
-        ]
+        font_list = ['AppleGothic', 'Apple SD Gothic Neo', 'NanumGothic', 'NanumBarunGothic']
     elif system == 'Windows':  # Windows
-        font_list = [
-            'Malgun Gothic',
-            'NanumGothic',
-            'Gulim',
-            'Batang',
-        ]
+        font_list = ['Malgun Gothic', 'NanumGothic', 'Gulim', 'Batang']
     else:  # Linux
-        font_list = [
-            'NanumGothic',
-            'NanumBarunGothic',
-            'DejaVu Sans',
-            'Noto Sans CJK KR',
-        ]
+        font_list = ['NanumGothic', 'NanumBarunGothic', 'Noto Sans CJK KR', 'DejaVu Sans']
     
-    # 사용 가능한 폰트 찾기
     available_fonts = [f.name for f in fm.fontManager.ttflist]
     
-    selected_font = None
     for font_name in font_list:
         if font_name in available_fonts:
-            selected_font = font_name
-            break
+            plt.rcParams['font.family'] = font_name
+            matplotlib.rcParams['font.family'] = font_name
+            plt.rcParams['axes.unicode_minus'] = False
+            matplotlib.rcParams['axes.unicode_minus'] = False
+            print(f"시스템 폰트 사용: {font_name}")
+            return font_name
     
-    if selected_font:
-        plt.rcParams['font.family'] = selected_font
-        plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
-        matplotlib.rcParams['font.family'] = selected_font
-        matplotlib.rcParams['axes.unicode_minus'] = False
-        return selected_font
-    else:
-        # 폰트를 찾지 못한 경우 기본 설정
-        plt.rcParams['font.family'] = 'DejaVu Sans'
-        plt.rcParams['axes.unicode_minus'] = False
-        matplotlib.rcParams['font.family'] = 'DejaVu Sans'
-        matplotlib.rcParams['axes.unicode_minus'] = False
-        return None
+    # 3. 폴백: DejaVu Sans
+    plt.rcParams['font.family'] = 'DejaVu Sans'
+    matplotlib.rcParams['font.family'] = 'DejaVu Sans'
+    plt.rcParams['axes.unicode_minus'] = False
+    matplotlib.rcParams['axes.unicode_minus'] = False
+    print("경고: 한글 폰트를 찾을 수 없습니다. DejaVu Sans 사용 (한글 표시 불가)")
+    return None
 
 def get_korean_font_path():
     """한글 폰트 파일 경로 찾기"""
+    # 프로젝트 내 폰트 우선
+    font_path = FONT_DIR / 'NanumGothic.ttf'
+    if font_path.exists():
+        return str(font_path)
+    
+    # 시스템 폰트 경로
     system = platform.system()
     
     if system == 'Darwin':  # macOS
@@ -88,4 +142,3 @@ def get_korean_font_path():
 
 # 모듈 로드 시 자동으로 폰트 설정
 _configured_font = setup_korean_font()
-

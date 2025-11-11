@@ -374,7 +374,9 @@ class ReportGenerator:
         for img_path in image_paths:
             # 상대 경로로 변환
             img_name = Path(img_path).name
-            html += f'<div class="image-container"><img src="/api/image/{img_name}" alt="Packing Diagram"></div>'
+            # 이미지 경로 URL 인코딩
+            img_name_encoded = quote(img_name)
+            html += f'<div class="image-container"><img src="/api/image/{img_name_encoded}" alt="Packing Diagram" onerror="this.onerror=null; this.src=\'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3E이미지를 불러올 수 없습니다%3C/text%3E%3C/svg%3E\';"></div>'
         html += '</div>'
         return html
     

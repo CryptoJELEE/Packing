@@ -46,13 +46,19 @@ class MasterDataManager:
                     partno = item.get('partno')
                     if partno:
                         # Supabase 데이터를 기존 형식으로 변환
+                        width = item.get('width', 0)
+                        height = item.get('height', 0)
+                        depth = item.get('depth', 0)
+                        
                         self._cache[partno] = {
                             'partno': partno,
                             'name': item.get('name', ''),
-                            'width': item.get('width', 0),
-                            'height': item.get('height', 0),
-                            'depth': item.get('depth', 0),
+                            'WHD': [width, height, depth],  # 배열로 변환 (프론트엔드 호환)
+                            'width': width,  # 호환성을 위해 개별 필드도 유지
+                            'height': height,
+                            'depth': depth,
                             'weight': item.get('weight', 0),
+                            'typeof': 'cube',  # 기본값
                             'packaging': item.get('packaging', ''),
                             'original': item.get('original_data', {})
                         }
@@ -144,13 +150,19 @@ class MasterDataManager:
                 if response.data and len(response.data) > 0:
                     item = response.data[0]
                     # Supabase 데이터를 기존 형식으로 변환
+                    width = item.get('width', 0)
+                    height = item.get('height', 0)
+                    depth = item.get('depth', 0)
+                    
                     converted_item = {
                         'partno': item.get('partno'),
                         'name': item.get('name', ''),
-                        'width': item.get('width', 0),
-                        'height': item.get('height', 0),
-                        'depth': item.get('depth', 0),
+                        'WHD': [width, height, depth],  # 배열로 변환 (프론트엔드 호환)
+                        'width': width,  # 호환성을 위해 개별 필드도 유지
+                        'height': height,
+                        'depth': depth,
                         'weight': item.get('weight', 0),
+                        'typeof': 'cube',  # 기본값
                         'packaging': item.get('packaging', ''),
                         'original': item.get('original_data', {})
                     }

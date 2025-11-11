@@ -531,20 +531,24 @@ async function viewWorkInstruction() {
         const response = await fetch(`/api/getDetailedReport/${currentSessionId}`);
         const data = await response.json();
 
-        if (data.Success && data.reports && data.reports.length > 0) {
+        if (data.Success && data.reports && Array.isArray(data.reports) && data.reports.length > 0) {
             // 첫 번째 보고서의 작업 지시서 열기
             const firstReport = data.reports[0];
-            const workInstructionUrl = `/api/workInstruction/${currentSessionId}/${firstReport.bin_name}`;
-            window.open(workInstructionUrl, '_blank');
-            
-            // 여러 보고서가 있으면 모두 열기
-            if (data.reports.length > 1) {
-                setTimeout(() => {
-                    data.reports.slice(1).forEach(report => {
-                        const url = `/api/workInstruction/${currentSessionId}/${report.bin_name}`;
-                        window.open(url, '_blank');
-                    });
-                }, 500);
+            if (firstReport && firstReport.bin_name) {
+                const workInstructionUrl = `/api/workInstruction/${currentSessionId}/${firstReport.bin_name}`;
+                window.open(workInstructionUrl, '_blank');
+                
+                // 여러 보고서가 있으면 모두 열기
+                if (data.reports.length > 1) {
+                    setTimeout(() => {
+                        data.reports.slice(1).forEach(report => {
+                            if (report && report.bin_name) {
+                                const url = `/api/workInstruction/${currentSessionId}/${report.bin_name}`;
+                                window.open(url, '_blank');
+                            }
+                        });
+                    }, 500);
+                }
             }
         } else {
             showStatus('작업 지시서를 찾을 수 없습니다.', 'error');

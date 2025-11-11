@@ -1,0 +1,731 @@
+{
+  "summary": {
+    "total_simulations": 1,
+    "total_bins": 1,
+    "total_unfit_items": 0,
+    "total_fitted_items": 44
+  },
+  "bins": [
+    {
+      "partno": "20ft_Container",
+      "space_utilization": 53.37,
+      "fitted_items": 44,
+      "unfitted_items": [],
+      "total_weight": 816.0,
+      "max_weight": 4000.0,
+      "weight_utilization": 20.4,
+      "gravity_distribution": [
+        41.75,
+        9.34,
+        38.17,
+        10.74
+      ],
+      "items": [
+        {
+          "partno": "71302-1",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "71302-4",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            0.0,
+            22.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "71302-7",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            0.0,
+            44.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "71302-10",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            0.0,
+            66.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "70876-3",
+          "name": "광동옥수수수염차1.5L(11형)",
+          "position": [
+            0.0,
+            0.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-2",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            0.0,
+            25.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-5",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            0.0,
+            50.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-6",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            0.0,
+            75.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "71320-1",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            0.0,
+            46.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-3",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            24.0,
+            46.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-5",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            48.0,
+            64.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-7",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            72.0,
+            64.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-9",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            0.0,
+            76.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-11",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            24.0,
+            76.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-13",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            48.0,
+            94.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-15",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            72.0,
+            94.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-17",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            0.0,
+            106.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-19",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            0.0,
+            24.0,
+            106.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71302-2",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            33.0,
+            0.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "71302-5",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            33.0,
+            22.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "71302-8",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            33.0,
+            44.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "70876-1",
+          "name": "광동옥수수수염차1.5L(11형)",
+          "position": [
+            33.0,
+            66.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70876-4",
+          "name": "광동옥수수수염차1.5L(11형)",
+          "position": [
+            33.0,
+            0.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-3",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            33.0,
+            25.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-7",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            33.0,
+            50.0,
+            32.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-9",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            33.0,
+            75.0,
+            32.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "71320-2",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            0.0,
+            46.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-4",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            24.0,
+            46.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-6",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            48.0,
+            64.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-8",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            72.0,
+            64.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-10",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            0.0,
+            76.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-12",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            24.0,
+            76.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-14",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            48.0,
+            94.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-16",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            72.0,
+            94.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-18",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            0.0,
+            106.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71320-20",
+          "name": "광동 비타500 ZERO (블랙)",
+          "position": [
+            48.0,
+            24.0,
+            106.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            48.0,
+            24.0,
+            30.0
+          ],
+          "weight": 24.0
+        },
+        {
+          "partno": "71302-3",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            66.0,
+            0.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "71302-6",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            66.0,
+            22.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "71302-9",
+          "name": "비타500 ZERO 스파클링(24입)",
+          "position": [
+            66.0,
+            44.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            22.0,
+            14.0
+          ],
+          "weight": 7.0
+        },
+        {
+          "partno": "70876-2",
+          "name": "광동옥수수수염차1.5L(11형)",
+          "position": [
+            66.0,
+            66.0,
+            0.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-1",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            66.0,
+            0.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-4",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            66.0,
+            25.0,
+            14.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-8",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            66.0,
+            50.0,
+            32.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        },
+        {
+          "partno": "70204-10",
+          "name": "광동 진한 헛개차1.5L(11형)",
+          "position": [
+            66.0,
+            75.0,
+            32.0
+          ],
+          "rotation_type": 0,
+          "WHD": [
+            33.0,
+            25.0,
+            32.0
+          ],
+          "weight": 19.0
+        }
+      ]
+    }
+  ]
+}

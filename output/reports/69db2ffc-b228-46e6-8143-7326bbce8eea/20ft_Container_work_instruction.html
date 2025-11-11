@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>적재 작업 지시서 - 20ft_Container</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 1.5cm;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+            .no-print {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        
+        .work-page {
+            width: 21cm;
+            min-height: 29.7cm;
+            padding: 1.5cm;
+            margin: 0 auto 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .work-header {
+            border-bottom: 3px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .work-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 24pt;
+            color: #333;
+        }
+        
+        .work-header p {
+            margin: 5px 0;
+            font-size: 12pt;
+        }
+        
+        .layer-info {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .work-steps {
+            margin: 20px 0;
+        }
+        
+        .work-steps h2 {
+            font-size: 16pt;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .work-step {
+            display: flex;
+            align-items: start;
+            margin: 12px 0;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-item {
+            font-weight: bold;
+            font-size: 12pt;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .step-position {
+            color: #666;
+            font-size: 10pt;
+            margin-top: 5px;
+        }
+        
+        .checklist {
+            margin: 20px 0;
+        }
+        
+        .checklist h2 {
+            font-size: 16pt;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 11pt;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+        
+        .top-view-diagram {
+            text-align: center;
+            margin: 25px 0;
+            page-break-inside: avoid;
+        }
+        
+        .top-view-diagram h3 {
+            font-size: 14pt;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .top-view-diagram img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .summary-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border: 2px solid #333;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        
+        .summary-box h2, .summary-box h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 14pt;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #333;
+            text-align: left;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14pt;
+            z-index: 1000;
+        }
+        
+        .print-btn:hover {
+            background: #5568d3;
+        }
+    </style>
+    <script>
+        function printReport() {
+            window.print();
+        }
+    </script>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="printReport()">🖨️ 인쇄</button>
+    
+    <div class="work-page">
+        <div class="work-header">
+            <h1>적재 작업 지시서</h1>
+            <p><strong>박스명:</strong> 20ft_Container</p>
+            <p><strong>크기:</strong> 110.0 × 110.0 × 180.0 cm</p>
+            <p><strong>최대 무게:</strong> 4000.0 kg</p>
+            <p><strong>생성일:</strong> 2025-11-10 15:54:39</p>
+        </div>
+        <div class="summary-box">
+            <h2>작업 요약</h2>
+            <p><strong>총 레이어 수:</strong> 8개</p>
+            <p><strong>총 아이템 수:</strong> 44개</p>
+            <p><strong>총 무게:</strong> 816.0 kg / 4000.0 kg</p>
+            <p><strong>공간 활용률:</strong> 53.37%</p>
+        </div>
+        <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px;">
+            <h3 style="margin-top: 0; color: #856404;">⚠️ 작업 시 주의사항</h3>
+            <ul style="line-height: 1.8;">
+                <li>작업 순서를 반드시 지켜주세요.</li>
+                <li>각 아이템의 위치를 정확히 확인하고 적재하세요.</li>
+                <li>무게 제한을 초과하지 않도록 주의하세요.</li>
+                <li>작업 완료 후 체크리스트에 체크하세요.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 1 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 0.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 0.0 ~ 25.0 cm | 
+                    아이템: 12개 | 
+                    무게: 222.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 1 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_1.png" alt="Layer 1 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-1)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=0.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-2)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=0.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-3)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=0.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-item">광동옥수수수염차1.5L(11형) (70876-3)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=0.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <div class="step-item">광동옥수수수염차1.5L(11형) (70876-4)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=0.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-1)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=0.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-1)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=0.0cm, Z=46.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">8</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-2)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=0.0cm, Z=46.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">9</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-9)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=0.0cm, Z=76.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">10</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-10)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=0.0cm, Z=76.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">11</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-17)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=0.0cm, Z=106.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">12</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-18)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=0.0cm, Z=106.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-1)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-2)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-3)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동옥수수수염차1.5L(11형)</strong> (70876-3)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동옥수수수염차1.5L(11형)</strong> (70876-4)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-1)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-1)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-2)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-9)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-10)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-17)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-18)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 1 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>비타500 ZERO 스파클링(24입)</td><td>3개</td><td>21.00</td></tr><tr><td>광동옥수수수염차1.5L(11형)</td><td>2개</td><td>38.00</td></tr><tr><td>광동 진한 헛개차1.5L(11형)</td><td>1개</td><td>19.00</td></tr><tr><td>광동 비타500 ZERO (블랙)</td><td>6개</td><td>144.00</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 2 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 22.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 22.0 ~ 48.0 cm | 
+                    아이템: 9개 | 
+                    무게: 165.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 2 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_2.png" alt="Layer 2 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-4)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=22.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-5)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=22.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-6)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=22.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-3)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=24.0cm, Z=46.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-4)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=24.0cm, Z=46.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-11)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=24.0cm, Z=76.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-12)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=24.0cm, Z=76.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">8</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-19)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=24.0cm, Z=106.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">9</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-20)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=24.0cm, Z=106.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-4)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-5)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-6)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-3)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-4)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-11)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-12)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-19)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-20)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 2 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>비타500 ZERO 스파클링(24입)</td><td>3개</td><td>21.00</td></tr><tr><td>광동 비타500 ZERO (블랙)</td><td>6개</td><td>144.00</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 3 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 25.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 25.0 ~ 50.0 cm | 
+                    아이템: 3개 | 
+                    무게: 57.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 3 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_3.png" alt="Layer 3 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-2)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=25.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-3)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=25.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-4)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=25.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-2)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-3)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-4)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 3 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>광동 진한 헛개차1.5L(11형)</td><td>3개</td><td>57.00</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 4 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 44.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 44.0 ~ 66.0 cm | 
+                    아이템: 3개 | 
+                    무게: 21.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 4 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_4.png" alt="Layer 4 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-7)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=44.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-8)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=44.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-9)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=44.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-7)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-8)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-9)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 4 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>비타500 ZERO 스파클링(24입)</td><td>3개</td><td>21.00</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 5 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 48.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 48.0 ~ 75.0 cm | 
+                    아이템: 7개 | 
+                    무게: 153.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 5 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_5.png" alt="Layer 5 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-5)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=50.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-7)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=50.0cm, Z=32.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-8)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=50.0cm, Z=32.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-5)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=48.0cm, Z=64.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-6)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=48.0cm, Z=64.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-13)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=48.0cm, Z=94.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-14)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=48.0cm, Z=94.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-5)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-7)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-8)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-5)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-6)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-13)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-14)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 5 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>광동 진한 헛개차1.5L(11형)</td><td>3개</td><td>57.00</td></tr><tr><td>광동 비타500 ZERO (블랙)</td><td>4개</td><td>96.00</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 6 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 66.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 66.0 ~ 91.0 cm | 
+                    아이템: 3개 | 
+                    무게: 45.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 6 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_6.png" alt="Layer 6 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">비타500 ZERO 스파클링(24입) (71302-10)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=66.0cm, Z=0.0cm | 
+                        크기: 33.0×22.0×14.0cm | 
+                        무게: 7.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">광동옥수수수염차1.5L(11형) (70876-1)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=66.0cm, Z=0.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">광동옥수수수염차1.5L(11형) (70876-2)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=66.0cm, Z=0.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>비타500 ZERO 스파클링(24입)</strong> (71302-10)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동옥수수수염차1.5L(11형)</strong> (70876-1)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동옥수수수염차1.5L(11형)</strong> (70876-2)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 6 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>비타500 ZERO 스파클링(24입)</td><td>1개</td><td>7.00</td></tr><tr><td>광동옥수수수염차1.5L(11형)</td><td>2개</td><td>38.00</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 7 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 72.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 72.0 ~ 96.0 cm | 
+                    아이템: 4개 | 
+                    무게: 96.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 7 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_7.png" alt="Layer 7 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-7)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=72.0cm, Z=64.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-8)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=72.0cm, Z=64.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-15)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=72.0cm, Z=94.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-item">광동 비타500 ZERO (블랙) (71320-16)</div>
+                    <div class="step-position">
+                        위치: X=48.0cm, Y=72.0cm, Z=94.0cm | 
+                        크기: 48.0×24.0×30.0cm | 
+                        무게: 24.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-7)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-8)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-15)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 비타500 ZERO (블랙)</strong> (71320-16)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 7 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>광동 비타500 ZERO (블랙)</td><td>4개</td><td>96.00</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="work-page">
+        <div class="work-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; border: 3px solid #333;">
+            <h1 style="color: white; margin: 0 0 15px 0; font-size: 28pt; text-align: center; font-weight: bold;">
+                ═════ 레이어 8 ═════
+            </h1>
+            <div style="text-align: center; font-size: 14pt;">
+                <p style="margin: 8px 0; font-weight: bold;"><strong>바닥 높이:</strong> 75.0 cm</p>
+                <p style="margin: 8px 0; font-size: 12pt;">
+                    높이 범위: 75.0 ~ 100.0 cm | 
+                    아이템: 3개 | 
+                    무게: 57.00 kg
+                </p>
+            </div>
+        </div>
+        
+        
+            <div class="top-view-diagram">
+                <h3>레이어 8 탑뷰 (위에서 본 모습)</h3>
+                <img src="/api/image/20ft_Container_layer_8.png" alt="Layer 8 Top View">
+            </div>
+            
+        
+        <div class="work-steps">
+            <h2>📋 작업 순서 (아래 순서대로 적재하세요)</h2>
+            
+            <div class="work-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-6)</div>
+                    <div class="step-position">
+                        위치: X=0.0cm, Y=75.0cm, Z=14.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-9)</div>
+                    <div class="step-position">
+                        위치: X=33.0cm, Y=75.0cm, Z=32.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-item">광동 진한 헛개차1.5L(11형) (70204-10)</div>
+                    <div class="step-position">
+                        위치: X=66.0cm, Y=75.0cm, Z=32.0cm | 
+                        크기: 33.0×25.0×32.0cm | 
+                        무게: 19.0kg
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="checklist">
+            <h2>✅ 작업 체크리스트</h2>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-6)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-9)</span>
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox">
+                <span><strong>광동 진한 헛개차1.5L(11형)</strong> (70204-10)</span>
+            </div>
+            
+        </div>
+        
+        <div class="summary-box">
+            <h3>레이어 8 제품 목록</h3>
+            <table>
+                <tr>
+                    <th>제품명</th>
+                    <th>개수</th>
+                    <th>총 무게 (kg)</th>
+                </tr>
+                <tr><td>광동 진한 헛개차1.5L(11형)</td><td>3개</td><td>57.00</td></tr>
+            </table>
+        </div>
+    </div>
+    
+</body>
+</html>

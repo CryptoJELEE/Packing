@@ -1,0 +1,11 @@
+{
+  "summary": {
+    "total_simulations": 1,
+    "total_bins": 1,
+    "total_unfit_items": 119,
+    "total_fitted_items": 67
+  },
+  "bins": [
+    {
+      "partno": "20ft_Container",
+      "space_utilization": 

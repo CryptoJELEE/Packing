@@ -1,0 +1,19 @@
+* Starting web service...
+ * Serving Flask app 'api'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://192.168.211.221:5050
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 110-797-513
+127.0.0.1 - - [11/Nov/2025 09:09:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2025 09:09:04] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2025 09:09:04] "GET /static/js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Nov/2025 09:09:04] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Nov/2025 09:09:04] "GET /api/getMasterStatus HTTP/1.1" 200 -
+ * Detected change in '/Users/jerry/Downloads/3D-bin-packing-master/api.py', reloading
+* Starting web service...
+ * Restarting with stat

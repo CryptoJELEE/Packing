@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>패킹 시뮬레이션 보고서 - 20ft_Container</title>
+    <style>
+        body { font-family: 'Malgun Gothic', Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; }
+        .header h1 { margin: 0 0 10px 0; }
+        .section { margin: 25px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+        .section h2 { color: #667eea; margin-top: 0; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .layer { margin: 15px 0; padding: 15px; background: white; border-radius: 6px; border-left: 4px solid #667eea; }
+        .layer h3 { color: #667eea; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; background: white; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #667eea; color: white; font-weight: bold; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .image-container { text-align: center; margin: 20px 0; }
+        .image-container img { max-width: 100%; height: auto; border: 2px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .stat-box { display: inline-block; margin: 10px; padding: 15px; background: #667eea; color: white; border-radius: 6px; min-width: 150px; text-align: center; }
+        .stat-box strong { display: block; font-size: 1.5em; margin-bottom: 5px; }
+        .layer-diagram { margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid #ddd; }
+        .layer-diagram h4 { margin-top: 0; color: #667eea; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 패킹 시뮬레이션 보고서</h1>
+            <p>생성일시: 2025-11-10 15:47:58</p>
+        </div>
+        
+        <div class="section">
+            <h2>📋 박스 정보</h2>
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+                <div class="stat-box">
+                    <strong>20ft_Container</strong>
+                    <span>박스명</span>
+                </div>
+                <div class="stat-box">
+                    <strong>110.0 × 110.0 × 180.0</strong>
+                    <span>크기 (cm)</span>
+                </div>
+                <div class="stat-box">
+                    <strong>816.0 / 4000.0</strong>
+                    <span>무게 (kg)</span>
+                </div>
+                <div class="stat-box">
+                    <strong>53.37%</strong>
+                    <span>공간 활용률</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📊 레이어별 적재 현황</h2>
+            
+            <div class="layer">
+                <h3>레이어 1 (높이: 0.0 ~ 100.0 cm)</h3>
+                <p><strong>총 아이템:</strong> 44개 | <strong>총 무게:</strong> 816.00 kg</p>
+                <table>
+                    <tr>
+                        <th>제품명</th><th>개수</th><th>총 무게 (kg)</th>
+                    </tr>
+                    <tr><td>비타500 ZERO 스파클링(24입)</td><td>10개</td><td>70.00</td></tr><tr><td>광동옥수수수염차1.5L(11형)</td><td>4개</td><td>76.00</td></tr><tr><td>광동 비타500 ZERO (블랙)</td><td>20개</td><td>480.00</td></tr><tr><td>광동 진한 헛개차1.5L(11형)</td><td>10개</td><td>190.00</td></tr>
+                </table>
+                
+                    <div class="layer-diagram" style="margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid #ddd;">
+                        <h4 style="margin-top: 0; color: #667eea;">📐 레이어 1 탑뷰</h4>
+                        <div class="image-container">
+                            <img src="/api/image/20ft_Container_layer_1.png" alt="Layer 1 Top View" style="max-width: 100%; border: 2px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        </div>
+                    </div>
+                    
+            </div>
+            
+        </div>
+        
+        <div class="section">
+            <h2>🔄 적재 순서</h2>
+            <table>
+                <tr>
+                    <th>순서</th><th>레이어</th><th>제품번호</th><th>제품명</th>
+                    <th>위치 (X, Y, Z)</th><th>크기 (W×H×D)</th><th>회전</th>
+                </tr>
+                <tr><td>1</td><td>1</td><td>71302-1</td><td>비타500 ZERO 스파클링(24입)</td><td>(0.0, 0.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>2</td><td>1</td><td>71302-4</td><td>비타500 ZERO 스파클링(24입)</td><td>(0.0, 22.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>3</td><td>1</td><td>71302-7</td><td>비타500 ZERO 스파클링(24입)</td><td>(0.0, 44.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>4</td><td>1</td><td>71302-10</td><td>비타500 ZERO 스파클링(24입)</td><td>(0.0, 66.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>5</td><td>1</td><td>71302-2</td><td>비타500 ZERO 스파클링(24입)</td><td>(33.0, 0.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>6</td><td>1</td><td>71302-5</td><td>비타500 ZERO 스파클링(24입)</td><td>(33.0, 22.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>7</td><td>1</td><td>71302-8</td><td>비타500 ZERO 스파클링(24입)</td><td>(33.0, 44.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>8</td><td>1</td><td>70876-1</td><td>광동옥수수수염차1.5L(11형)</td><td>(33.0, 66.0, 0.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>9</td><td>1</td><td>71302-3</td><td>비타500 ZERO 스파클링(24입)</td><td>(66.0, 0.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>10</td><td>1</td><td>71302-6</td><td>비타500 ZERO 스파클링(24입)</td><td>(66.0, 22.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>11</td><td>1</td><td>71302-9</td><td>비타500 ZERO 스파클링(24입)</td><td>(66.0, 44.0, 0.0)</td><td>33.0×22.0×14.0</td><td>0</td></tr><tr><td>12</td><td>1</td><td>70876-2</td><td>광동옥수수수염차1.5L(11형)</td><td>(66.0, 66.0, 0.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>13</td><td>1</td><td>70876-3</td><td>광동옥수수수염차1.5L(11형)</td><td>(0.0, 0.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>14</td><td>1</td><td>70204-2</td><td>광동 진한 헛개차1.5L(11형)</td><td>(0.0, 25.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>15</td><td>1</td><td>70204-5</td><td>광동 진한 헛개차1.5L(11형)</td><td>(0.0, 50.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>16</td><td>1</td><td>70204-6</td><td>광동 진한 헛개차1.5L(11형)</td><td>(0.0, 75.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>17</td><td>1</td><td>70876-4</td><td>광동옥수수수염차1.5L(11형)</td><td>(33.0, 0.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>18</td><td>1</td><td>70204-3</td><td>광동 진한 헛개차1.5L(11형)</td><td>(33.0, 25.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>19</td><td>1</td><td>70204-1</td><td>광동 진한 헛개차1.5L(11형)</td><td>(66.0, 0.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>20</td><td>1</td><td>70204-4</td><td>광동 진한 헛개차1.5L(11형)</td><td>(66.0, 25.0, 14.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>21</td><td>1</td><td>70204-7</td><td>광동 진한 헛개차1.5L(11형)</td><td>(33.0, 50.0, 32.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>22</td><td>1</td><td>70204-9</td><td>광동 진한 헛개차1.5L(11형)</td><td>(33.0, 75.0, 32.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>23</td><td>1</td><td>70204-8</td><td>광동 진한 헛개차1.5L(11형)</td><td>(66.0, 50.0, 32.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>24</td><td>1</td><td>70204-10</td><td>광동 진한 헛개차1.5L(11형)</td><td>(66.0, 75.0, 32.0)</td><td>33.0×25.0×32.0</td><td>0</td></tr><tr><td>25</td><td>1</td><td>71320-1</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 0.0, 46.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>26</td><td>1</td><td>71320-3</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 24.0, 46.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>27</td><td>1</td><td>71320-2</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 0.0, 46.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>28</td><td>1</td><td>71320-4</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 24.0, 46.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>29</td><td>1</td><td>71320-5</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 48.0, 64.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>30</td><td>1</td><td>71320-7</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 72.0, 64.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>31</td><td>1</td><td>71320-6</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 48.0, 64.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>32</td><td>1</td><td>71320-8</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 72.0, 64.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>33</td><td>1</td><td>71320-9</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 0.0, 76.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>34</td><td>1</td><td>71320-11</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 24.0, 76.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>35</td><td>1</td><td>71320-10</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 0.0, 76.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>36</td><td>1</td><td>71320-12</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 24.0, 76.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>37</td><td>1</td><td>71320-13</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 48.0, 94.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>38</td><td>1</td><td>71320-15</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 72.0, 94.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>39</td><td>1</td><td>71320-14</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 48.0, 94.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>40</td><td>1</td><td>71320-16</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 72.0, 94.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>41</td><td>1</td><td>71320-17</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 0.0, 106.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>42</td><td>1</td><td>71320-19</td><td>광동 비타500 ZERO (블랙)</td><td>(0.0, 24.0, 106.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>43</td><td>1</td><td>71320-18</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 0.0, 106.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr><tr><td>44</td><td>1</td><td>71320-20</td><td>광동 비타500 ZERO (블랙)</td><td>(48.0, 24.0, 106.0)</td><td>48.0×24.0×30.0</td><td>0</td></tr>
+            </table>
+        </div>
+        
+        <div class="section"><h2>📐 적재 도면</h2><div class="image-container"><img src="/api/image/20ft_Container_layer_1.png" alt="Packing Diagram"></div></div>
+        
+        <div class="section">
+            <h2>⚖️ 중력 분포</h2>
+            <p>4분할 무게 분포: [41.75, 9.34, 38.17, 10.74]%</p>
+            <p style="color: #666; font-size: 0.9em;">각 영역의 무게 비율이 균등할수록 안정적입니다.</p>
+        </div>
+    </div>
+</body>
+</html>

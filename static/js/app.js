@@ -105,6 +105,23 @@ async function handleUpload() {
             body: formData
         });
 
+        // 응답 상태 확인
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = `서버 오류 (${response.status})`;
+            if (response.status === 404) {
+                errorMessage = 'API 엔드포인트를 찾을 수 없습니다. 서버가 제대로 시작되었는지 확인하세요.';
+            } else if (errorText) {
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.Reason || errorData.message || errorMessage;
+                } catch {
+                    errorMessage = errorText || errorMessage;
+                }
+            }
+            throw new Error(errorMessage);
+        }
+
         const data = await response.json();
 
         if (data.Success) {
@@ -324,6 +341,23 @@ async function runSimulation() {
             body: JSON.stringify(requestData)
         });
 
+        // 응답 상태 확인
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = `서버 오류 (${response.status})`;
+            if (response.status === 404) {
+                errorMessage = 'API 엔드포인트를 찾을 수 없습니다. 서버가 제대로 시작되었는지 확인하세요.';
+            } else if (errorText) {
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.Reason || errorData.message || errorMessage;
+                } catch {
+                    errorMessage = errorText || errorMessage;
+                }
+            }
+            throw new Error(errorMessage);
+        }
+
         const data = await response.json();
 
         if (data.Success) {
@@ -506,6 +540,17 @@ function showLoading(show) {
 async function checkMasterStatus() {
     try {
         const response = await fetch('/api/getMasterStatus');
+        
+        // 응답 상태 확인
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`서버 오류 (${response.status}): ${errorText}`);
+            if (response.status === 404) {
+                console.error('API 엔드포인트를 찾을 수 없습니다. 서버가 제대로 시작되었는지 확인하세요.');
+            }
+            return;
+        }
+        
         const data = await response.json();
         
         if (data.Success && data.has_master) {
@@ -563,6 +608,23 @@ async function handleMasterUpload() {
             body: formData
         });
 
+        // 응답 상태 확인
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = `서버 오류 (${response.status})`;
+            if (response.status === 404) {
+                errorMessage = 'API 엔드포인트를 찾을 수 없습니다. 서버가 제대로 시작되었는지 확인하세요.';
+            } else if (errorText) {
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.Reason || errorData.message || errorMessage;
+                } catch {
+                    errorMessage = errorText || errorMessage;
+                }
+            }
+            throw new Error(errorMessage);
+        }
+
         const data = await response.json();
 
         if (data.Success) {
@@ -618,6 +680,23 @@ async function handleOrderUpload() {
             method: 'POST',
             body: formData
         });
+
+        // 응답 상태 확인
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = `서버 오류 (${response.status})`;
+            if (response.status === 404) {
+                errorMessage = 'API 엔드포인트를 찾을 수 없습니다. 서버가 제대로 시작되었는지 확인하세요.';
+            } else if (errorText) {
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.Reason || errorData.message || errorMessage;
+                } catch {
+                    errorMessage = errorText || errorMessage;
+                }
+            }
+            throw new Error(errorMessage);
+        }
 
         const data = await response.json();
 

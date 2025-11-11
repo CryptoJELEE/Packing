@@ -159,14 +159,26 @@ async function handleUpload() {
 
 // 통계 표시
 function displayStats(stats) {
+    // 안전 체크
+    if (!stats) {
+        const statsContent = document.getElementById('stats-content');
+        statsContent.innerHTML = '<p>통계 데이터가 없습니다.</p>';
+        return;
+    }
+    
     const statsContent = document.getElementById('stats-content');
+    
+    // 안전한 값 접근
+    const totalItems = stats.total_items || 0;
+    const totalVolume = (stats.total_volume !== undefined && stats.total_volume !== null) ? stats.total_volume : 0;
+    const totalWeight = (stats.total_weight !== undefined && stats.total_weight !== null) ? stats.total_weight : 0;
     
     let html = `
         <div class="stat-box">
             <h3>전체 통계</h3>
-            <p><strong>총 아이템 수:</strong> ${stats.total_items}개</p>
-            <p><strong>총 부피:</strong> ${stats.total_volume.toFixed(2)} cm³</p>
-            <p><strong>총 무게:</strong> ${stats.total_weight.toFixed(2)} kg</p>
+            <p><strong>총 아이템 수:</strong> ${totalItems}개</p>
+            <p><strong>총 부피:</strong> ${totalVolume.toFixed(2)} cm³</p>
+            <p><strong>총 무게:</strong> ${totalWeight.toFixed(2)} kg</p>
         </div>
     `;
 
@@ -325,7 +337,7 @@ async function runSimulation() {
     const itemCounts = {};
     
     // 주문서인 경우 자동으로 수량 설정
-    if (currentItems && currentItems.length > 0 && currentItems[0].order_quantity) {
+    if (currentItems && currentItems.length > 0 && currentItems[0] && currentItems[0].order_quantity) {
         // 주문서 아이템인 경우
         currentItems.forEach(item => {
             itemCounts[item.name] = item.order_quantity || 1;
@@ -469,7 +481,7 @@ async function viewDetailedReport() {
         const response = await fetch(`/api/getDetailedReport/${currentSessionId}`);
         const data = await response.json();
 
-        if (data.Success && data.reports && data.reports.length > 0) {
+        if (data.Success && data.reports && Array.isArray(data.reports) && data.reports.length > 0) {
             const reportsList = document.getElementById('detailed-reports-list');
             reportsList.style.display = 'block';
             

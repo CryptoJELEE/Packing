@@ -310,10 +310,25 @@ class PackingPipeline:
                     diagram_path = str(output_path / f"{target_bin.partno}_layer_{layer_num}.png")
                     generator.generate_layer_diagram(layer_num, diagram_path)
                     
+                    # 생성 확인
+                    diagram_path_obj = Path(diagram_path)
+                    if diagram_path_obj.exists():
+                        print(f"✅ 레이어 다이어그램 생성 완료: {diagram_path}")
+                    else:
+                        print(f"❌ 레이어 다이어그램 생성 실패: {diagram_path}")
+                        continue  # 생성 실패 시 다음 레이어로
+                    
                     # images 디렉토리에도 복사 (API 접근용)
                     image_filename = f"{target_bin.partno}_layer_{layer_num}.png"
                     image_dest = images_dir / image_filename
-                    shutil.copy2(diagram_path, image_dest)
+                    
+                    # 파일 존재 확인 후 복사
+                    try:
+                        shutil.copy2(diagram_path, image_dest)
+                        print(f"✅ 레이어 이미지 복사 완료: {image_dest}")
+                    except Exception as e:
+                        print(f"❌ 레이어 이미지 복사 실패: {e}")
+                        # 복사 실패해도 계속 진행
                     
                     layer_images.append(image_filename)  # 파일명만 저장
             

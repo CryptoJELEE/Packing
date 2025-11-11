@@ -9,6 +9,7 @@ from collections import defaultdict
 import json
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import quote
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -311,11 +312,16 @@ class ReportGenerator:
             if layer_images and bin_name:
                 layer_image_name = f"{bin_name}_layer_{layer_num}.png"
                 if layer_image_name in layer_images:
+                    # 이미지 경로 URL 인코딩
+                    layer_image_name_encoded = quote(layer_image_name)
                     layer_image_html = f'''
                     <div class="layer-diagram" style="margin-top: 15px; padding: 15px; background: white; border-radius: 6px; border: 2px solid {layer_color};">
                         <h4 style="margin-top: 0; color: {layer_color}; font-size: 16pt;">📐 레이어 {layer_num} 탑뷰</h4>
                         <div class="image-container">
-                            <img src="/api/image/{layer_image_name}" alt="Layer {layer_num} Top View" style="max-width: 100%; border: 2px solid {layer_color}; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <img src="/api/image/{layer_image_name_encoded}" 
+                                 alt="Layer {layer_num} Top View" 
+                                 style="max-width: 100%; border: 2px solid {layer_color}; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3E이미지를 불러올 수 없습니다%3C/text%3E%3C/svg%3E';">
                         </div>
                     </div>
                     '''

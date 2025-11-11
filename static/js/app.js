@@ -126,12 +126,20 @@ async function handleUpload() {
 
         if (data.Success) {
             currentSessionId = data.session_id;
-            currentStats = data.stats;
-            currentItems = data.items;
+            currentStats = data.stats || {};
+            currentItems = data.items || [];
 
             showStatus('CSV 파일이 성공적으로 처리되었습니다.', 'success');
-            displayStats(data.stats);
-            displayItems(data.items);
+            
+            if (data.stats) {
+                displayStats(data.stats);
+            }
+            
+            if (data.items && Array.isArray(data.items)) {
+                displayItems(data.items);
+            } else {
+                displayItems([]);
+            }
             
             // 섹션 표시
             statsSection.style.display = 'block';
@@ -217,6 +225,13 @@ function displayStats(stats) {
 
 // 아이템 표시
 function displayItems(items) {
+    // 안전 체크
+    if (!items || !Array.isArray(items)) {
+        const itemsList = document.getElementById('items-list');
+        itemsList.innerHTML = '<p>아이템 데이터가 없습니다.</p>';
+        return;
+    }
+    
     currentItems = items;
     const itemsList = document.getElementById('items-list');
     
@@ -225,25 +240,36 @@ function displayItems(items) {
         return;
     }
 
-    itemsList.innerHTML = items.map((item, index) => `
+    itemsList.innerHTML = items.map((item, index) => {
+        // 안전한 데이터 접근
+        const whd = item.WHD || [0, 0, 0];
+        const original = item.original || {};
+        const partno = item.partno || 'N/A';
+        const name = item.name || '이름 없음';
+        const weight = item.weight || 0;
+        const typeofItem = item.typeof || 'cube';
+        const category = original.분류 || '기타';
+        
+        return `
         <div class="item-card" data-index="${index}">
             <div class="item-info">
-                <h4>${item.name}</h4>
-                <p><strong>제품번호:</strong> ${item.partno}</p>
-                <p><strong>크기:</strong> ${item.WHD[0].toFixed(1)} × ${item.WHD[1].toFixed(1)} × ${item.WHD[2].toFixed(1)} cm</p>
-                <p><strong>무게:</strong> ${item.weight} kg | <strong>타입:</strong> ${item.typeof} | <strong>분류:</strong> ${item.original.분류}</p>
+                <h4>${name}</h4>
+                <p><strong>제품번호:</strong> ${partno}</p>
+                <p><strong>크기:</strong> ${whd[0].toFixed(1)} × ${whd[1].toFixed(1)} × ${whd[2].toFixed(1)} cm</p>
+                <p><strong>무게:</strong> ${weight} kg | <strong>타입:</strong> ${typeofItem} | <strong>분류:</strong> ${category}</p>
             </div>
             <div class="item-controls">
                 <label>개수:</label>
                 <input type="number" 
                        class="item-count" 
-                       data-name="${item.name}" 
+                       data-name="${name}" 
                        value="1" 
                        min="0" 
                        step="1">
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // 아이템 필터링

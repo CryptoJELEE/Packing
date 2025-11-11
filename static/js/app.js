@@ -69,6 +69,33 @@ if (isPalletCheckbox) {
     });
 }
 
+// 전역 오류 핸들러 (브라우저 확장 프로그램 오류 무시)
+window.addEventListener('error', function(event) {
+    // 브라우저 확장 프로그램 오류는 무시
+    if (event.message && (
+        event.message.includes('message channel closed') ||
+        event.message.includes('No tab with id') ||
+        event.message.includes('runtime.lastError') ||
+        event.message.includes('Extension context invalidated')
+    )) {
+        event.preventDefault();
+        return false;
+    }
+}, true);
+
+// Promise rejection 무시 (확장 프로그램 관련)
+window.addEventListener('unhandledrejection', function(event) {
+    if (event.reason && event.reason.message && (
+        event.reason.message.includes('message channel closed') ||
+        event.reason.message.includes('No tab with id') ||
+        event.reason.message.includes('runtime.lastError') ||
+        event.reason.message.includes('Extension context invalidated')
+    )) {
+        event.preventDefault();
+        return false;
+    }
+});
+
 // 페이지 로드 시 마스터 상태 확인
 checkMasterStatus();
 

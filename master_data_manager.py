@@ -21,7 +21,10 @@ class MasterDataManager:
     MASTER_FILE = 'data/master_data.json'
     
     def __init__(self):
+        # 항상 master_data 초기화 (fallback을 위해 필요)
+        self.master_data = {}
         self.use_supabase = USE_SUPABASE
+        
         if self.use_supabase:
             try:
                 self.table = supabase_client.get_table(self.TABLE_NAME)
@@ -30,10 +33,8 @@ class MasterDataManager:
             except Exception as e:
                 print(f"Supabase 초기화 실패: {str(e)}, 로컬 파일 시스템 사용")
                 self.use_supabase = False
-                self.master_data = {}
                 self.load_master_data()
         else:
-            self.master_data = {}
             self.load_master_data()
     
     def _load_cache(self):
@@ -115,8 +116,15 @@ class MasterDataManager:
             except Exception as e:
                 print(f"Supabase 마스터 데이터 추가 오류: {str(e)}, 로컬 파일로 저장")
                 self.use_supabase = False
+                # master_data가 없으면 초기화 (이미 __init__에서 초기화되지만 안전을 위해)
+                if not hasattr(self, 'master_data') or self.master_data is None:
+                    self.master_data = {}
         
         # 로컬 파일 시스템 사용
+        # master_data가 없으면 초기화 (이미 __init__에서 초기화되지만 안전을 위해)
+        if not hasattr(self, 'master_data') or self.master_data is None:
+            self.master_data = {}
+            
         for item in items:
             partno = item.get('partno')
             if partno:

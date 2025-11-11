@@ -102,18 +102,20 @@ window.addEventListener('unhandledrejection', function(event) {
     }
 });
 
-// 콘솔 오류 필터링 (확장 프로그램 오류 무시)
+// 콘솔 오류 필터링 (확장 프로그램 오류만 정확히 무시)
 const originalError = console.error;
 console.error = function(...args) {
     const message = args.join(' ');
+    // Chrome 확장 프로그램의 특정 오류 패턴만 필터링
+    // 실제 애플리케이션 오류는 표시되도록 더 정확한 패턴 매칭
     if (
-        message.includes('runtime.lastError') ||
-        message.includes('Unchecked runtime.lastError') ||
-        message.includes('No tab with id') ||
-        message.includes('message channel closed') ||
-        message.includes('Extension context invalidated')
+        message.match(/Unchecked\s+runtime\.lastError/i) ||
+        message.match(/No tab with id:\s*\d+/i) ||
+        (message.includes('runtime.lastError') && message.includes('No tab with id')) ||
+        message.includes('Extension context invalidated') ||
+        message.includes('message channel closed')
     ) {
-        return; // 확장 프로그램 오류는 무시
+        return; // 확장 프로그램 오류만 무시
     }
     originalError.apply(console, args);
 };
@@ -123,13 +125,13 @@ const originalWarn = console.warn;
 console.warn = function(...args) {
     const message = args.join(' ');
     if (
-        message.includes('runtime.lastError') ||
-        message.includes('Unchecked runtime.lastError') ||
-        message.includes('No tab with id') ||
-        message.includes('message channel closed') ||
-        message.includes('Extension context invalidated')
+        message.match(/Unchecked\s+runtime\.lastError/i) ||
+        message.match(/No tab with id:\s*\d+/i) ||
+        (message.includes('runtime.lastError') && message.includes('No tab with id')) ||
+        message.includes('Extension context invalidated') ||
+        message.includes('message channel closed')
     ) {
-        return; // 확장 프로그램 경고는 무시
+        return; // 확장 프로그램 경고만 무시
     }
     originalWarn.apply(console, args);
 };
@@ -476,6 +478,8 @@ async function runSimulation() {
             showStatus(`시뮬레이션 오류: ${data.Reason}`, 'error');
         }
     } catch (error) {
+        // 실제 오류는 콘솔에 표시 (필터링되지 않음)
+        console.error('시뮬레이션 실행 오류:', error);
         showStatus(`시뮬레이션 오류: ${error.message}`, 'error');
     } finally {
         showLoading(false);

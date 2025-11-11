@@ -517,13 +517,21 @@ function displayResults(data) {
         resultsStats.innerHTML = statsHtml;
     }
 
-    // 이미지 표시
+    // 이미지 표시 (오류 처리 추가)
     if (data.images && data.images.length > 0) {
-        resultsImages.innerHTML = data.images.map(image => `
-            <div class="result-image">
-                <img src="/api/image/${image}" alt="Packing Result">
-            </div>
-        `).join('');
+        resultsImages.innerHTML = data.images.map(image => {
+            // 파일명 인코딩 (공백, 특수문자 처리)
+            const encodedImage = encodeURIComponent(image);
+            return `
+                <div class="result-image">
+                    <img src="/api/image/${encodedImage}" 
+                         alt="Packing Result"
+                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3E이미지를 불러올 수 없습니다%3C/text%3E%3C/svg%3E'; console.error('이미지 로드 실패:', '${image}');">
+                </div>
+            `;
+        }).join('');
+    } else {
+        resultsImages.innerHTML = '<p>생성된 이미지가 없습니다.</p>';
     }
 }
 

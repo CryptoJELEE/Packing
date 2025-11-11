@@ -558,7 +558,16 @@ def visualize():
         
         # 시각화 생성
         images_dir = Config.OUTPUT_FOLDER / 'images'
+        images_dir.mkdir(parents=True, exist_ok=True)  # 디렉토리 생성 보장
         image_paths = pipeline.visualize_results(save_path=str(images_dir), alpha=0.2)
+        
+        # 이미지 파일 생성 확인
+        for img in image_paths:
+            img_path = images_dir / img
+            if img_path.exists():
+                print(f"✅ 이미지 생성 완료: {img_path}")
+            else:
+                print(f"❌ 이미지 생성 실패: {img_path}")
         
         # 기본 리포트 생성
         report_dir = Config.OUTPUT_FOLDER / 'reports'
@@ -670,17 +679,35 @@ def get_detailed_report(session_id):
         return flask.jsonify({"Success": False, "Reason": str(e)}), 500
 
 # 이미지 조회
-@app.route('/api/image/<filename>', methods=['GET'])
+@app.route('/api/image/<path:filename>', methods=['GET'])
 @cross_origin()
 def get_image(filename):
     """생성된 이미지 조회"""
     try:
-        return send_from_directory(
-            str(Config.OUTPUT_FOLDER / 'images'),
-            filename
-        )
+        # 파일명 디코딩
+        from urllib.parse import unquote
+        filename = unquote(filename)
+        
+        image_path = Config.OUTPUT_FOLDER / 'images' / filename
+        
+        if image_path.exists():
+            return send_from_directory(
+                str(Config.OUTPUT_FOLDER / 'images'),
+                filename
+            )
+        else:
+            # 파일이 없으면 404 반환
+            print(f"⚠️ 이미지 파일을 찾을 수 없습니다: {image_path}")
+            return flask.jsonify({
+                "Success": False, 
+                "Reason": f"이미지 파일을 찾을 수 없습니다: {filename}"
+            }), 404
     except Exception as e:
-        return flask.jsonify({"Success": False, "Reason": str(e)}), 404
+        print(f"❌ 이미지 조회 오류: {str(e)}")
+        return flask.jsonify({
+            "Success": False, 
+            "Reason": str(e)
+        }), 404
 
 # 기존 calPacking 엔드포인트 개선 (CSV 데이터도 지원)
 @app.route('/api/calPacking', methods=['POST'])

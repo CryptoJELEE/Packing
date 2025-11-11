@@ -14,6 +14,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from decimal import Decimal
+from core.packing.font_config import setup_korean_font
 
 def convert_decimal_to_float(obj):
     """Decimal 타입을 float로 변환"""
@@ -35,6 +36,8 @@ class ReportGenerator:
         self.bin = bin
         self.items = items
         self.layers = []
+        # 한글 폰트 설정
+        setup_korean_font()
     
     def analyze_layers(self, layer_height_threshold: float = 2.0) -> List[Dict]:
         """x-y 단면이 z축으로 확장되는 레이어 분석
@@ -371,6 +374,9 @@ class ReportGenerator:
     
     def generate_layer_diagram(self, layer_number: int, output_path: str):
         """레이어별 평면도 생성 (위에서 본 모습 - x-y 평면: 가로 x 세로)"""
+        # 한글 폰트 재설정 (안전을 위해)
+        setup_korean_font()
+        
         if layer_number > len(self.layers):
             return
         

@@ -692,6 +692,13 @@ class Painter:
 
     def plotBoxAndItems(self,title="",alpha=0.2,write_num=False,fontsize=10):
         """ side effective. Plot the Bin and the items it contains. """
+        # 한글 폰트 설정 시도 (실패해도 계속 진행)
+        try:
+            from core.packing.font_config import setup_korean_font
+            setup_korean_font()
+        except:
+            pass  # 폰트 설정 실패해도 계속 진행
+        
         fig = plt.figure()
         axGlob = plt.axes(projection='3d')
         

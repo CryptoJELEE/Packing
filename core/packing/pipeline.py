@@ -14,6 +14,7 @@ matplotlib.use('Agg')  # GUI 백엔드 없이 사용
 import matplotlib.pyplot as plt
 from core.packing.strategy import AdvancedPackingStrategy
 from core.packing.report_generator import ReportGenerator
+from core.packing.font_config import setup_korean_font
 
 def convert_decimal_to_float(obj):
     """Decimal 타입을 float로 변환하는 헬퍼 함수"""
@@ -35,6 +36,8 @@ class PackingPipeline:
         """파이프라인 초기화"""
         self.packer = Packer()
         self.results = []
+        # 한글 폰트 설정
+        setup_korean_font()
         
     def add_box(self, partno: str, WHD: tuple, max_weight: float, 
                 corner: int = 0, put_type: int = 1, is_pallet: bool = False):
@@ -215,6 +218,9 @@ class PackingPipeline:
     def visualize_results(self, save_path: str = None, alpha: float = 0.2, 
                          show_plot: bool = False) -> List[str]:
         """결과 시각화 - 이미지 파일 경로 리스트 반환"""
+        # 한글 폰트 재설정 (안전을 위해)
+        setup_korean_font()
+        
         image_paths = []
         
         for bin in self.packer.bins:

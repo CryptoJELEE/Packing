@@ -115,7 +115,12 @@ class MasterDataManager:
                         # 삽입
                         self.table.insert(item_data).execute()
                     
-                    # 캐시 업데이트
+                    # 캐시 업데이트 (WHD 배열이 있는지 확인)
+                    if 'WHD' not in item and 'width' in item:
+                        # WHD 배열이 없으면 생성
+                        item['WHD'] = [item.get('width', 0), item.get('height', 0), item.get('depth', 0)]
+                    if 'typeof' not in item:
+                        item['typeof'] = 'cube'
                     self._cache[partno] = item
                 
                 return True
@@ -184,13 +189,19 @@ class MasterDataManager:
                     for item in response.data:
                         partno = item.get('partno')
                         if partno:
+                            width = item.get('width', 0)
+                            height = item.get('height', 0)
+                            depth = item.get('depth', 0)
+                            
                             converted_item = {
                                 'partno': partno,
                                 'name': item.get('name', ''),
-                                'width': item.get('width', 0),
-                                'height': item.get('height', 0),
-                                'depth': item.get('depth', 0),
+                                'WHD': [width, height, depth],  # 배열로 변환 (프론트엔드 호환)
+                                'width': width,  # 호환성을 위해 개별 필드도 유지
+                                'height': height,
+                                'depth': depth,
                                 'weight': item.get('weight', 0),
+                                'typeof': 'cube',  # 기본값
                                 'packaging': item.get('packaging', ''),
                                 'original': item.get('original_data', {})
                             }

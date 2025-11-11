@@ -536,18 +536,38 @@ async function viewWorkInstruction() {
             const firstReport = data.reports[0];
             if (firstReport && firstReport.bin_name) {
                 const workInstructionUrl = `/api/workInstruction/${currentSessionId}/${firstReport.bin_name}`;
-                window.open(workInstructionUrl, '_blank');
+                try {
+                    const newWindow = window.open(workInstructionUrl, '_blank');
+                    if (!newWindow) {
+                        // 팝업이 차단된 경우 현재 창에서 열기
+                        window.location.href = workInstructionUrl;
+                    }
+                } catch (error) {
+                    console.error('창 열기 오류:', error);
+                    // 대안: 현재 창에서 열기
+                    window.location.href = workInstructionUrl;
+                }
                 
-                // 여러 보고서가 있으면 모두 열기
+                // 여러 보고서가 있으면 모두 열기 (지연 시간 증가로 팝업 차단 방지)
                 if (data.reports.length > 1) {
                     setTimeout(() => {
-                        data.reports.slice(1).forEach(report => {
+                        data.reports.slice(1).forEach((report, index) => {
                             if (report && report.bin_name) {
                                 const url = `/api/workInstruction/${currentSessionId}/${report.bin_name}`;
-                                window.open(url, '_blank');
+                                try {
+                                    // 각 탭 사이에 추가 지연 (팝업 차단 방지)
+                                    setTimeout(() => {
+                                        const newWindow = window.open(url, '_blank');
+                                        if (!newWindow) {
+                                            console.warn(`팝업 차단: ${report.bin_name}`);
+                                        }
+                                    }, index * 300); // 각 탭마다 300ms 지연
+                                } catch (error) {
+                                    console.error(`창 열기 오류 (${report.bin_name}):`, error);
+                                }
                             }
                         });
-                    }, 500);
+                    }, 1000); // 첫 번째 탭 후 1초 대기
                 }
             }
         } else {

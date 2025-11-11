@@ -774,10 +774,14 @@ class ReportGenerator:
         if image_paths and bin_name:
             layer_image_name = f"{bin_name}_layer_{layer_num}.png"
             if layer_image_name in image_paths:
+                # 이미지 경로 URL 인코딩
+                layer_image_name_encoded = quote(layer_image_name)
                 layer_image_html = f'''
             <div class="top-view-diagram">
                 <h3>레이어 {layer_num} 탑뷰 (위에서 본 모습)</h3>
-                <img src="/api/image/{layer_image_name}" alt="Layer {layer_num} Top View">
+                <img src="/api/image/{layer_image_name_encoded}" 
+                     alt="Layer {layer_num} Top View"
+                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3E이미지를 불러올 수 없습니다%3C/text%3E%3C/svg%3E';">
             </div>
             '''
         

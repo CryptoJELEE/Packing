@@ -8,7 +8,7 @@ from datetime import datetime
 
 # Supabase 사용 시도, 실패 시 로컬 파일 사용
 try:
-    from supabase_client import supabase_client
+    from core.storage.supabase_client import supabase_client
     USE_SUPABASE = True
 except ImportError:
     USE_SUPABASE = False

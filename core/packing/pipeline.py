@@ -12,8 +12,8 @@ from decimal import Decimal
 import matplotlib
 matplotlib.use('Agg')  # GUI 백엔드 없이 사용
 import matplotlib.pyplot as plt
-from advanced_packing_strategy import AdvancedPackingStrategy
-from report_generator import ReportGenerator
+from core.packing.strategy import AdvancedPackingStrategy
+from core.packing.report_generator import ReportGenerator
 
 def convert_decimal_to_float(obj):
     """Decimal 타입을 float로 변환하는 헬퍼 함수"""
@@ -229,9 +229,10 @@ class PackingPipeline:
             )
             
             if save_path:
-                Path(save_path).mkdir(parents=True, exist_ok=True)
+                save_path_obj = Path(save_path)
+                save_path_obj.mkdir(parents=True, exist_ok=True)
                 filename = f"{bin.partno.replace(' ', '_')}.png"
-                filepath = os.path.join(save_path, filename)
+                filepath = str(save_path_obj / filename)
                 # 현재 figure를 가져와서 저장
                 current_fig = plt.gcf()
                 current_fig.savefig(filepath, dpi=300, bbox_inches='tight')
@@ -286,25 +287,26 @@ class PackingPipeline:
             # 레이어별 도면 생성
             layer_images = []
             if include_layer_diagrams and output_dir:
-                os.makedirs(output_dir, exist_ok=True)
+                output_path = Path(output_dir)
+                output_path.mkdir(parents=True, exist_ok=True)
                 layers = generator.analyze_layers()
                 
                 # images 디렉토리도 생성 (API에서 접근 가능하도록)
                 # output_dir이 output/reports/{session_id} 형태이므로
                 # 상위 디렉토리로 가서 images 디렉토리 찾기
-                base_output_dir = Path(output_dir).parent.parent
+                base_output_dir = output_path.parent.parent
                 images_dir = base_output_dir / 'images'
-                os.makedirs(images_dir, exist_ok=True)
+                images_dir.mkdir(parents=True, exist_ok=True)
                 
                 for layer in layers:
                     layer_num = layer['layer_number']
                     # 보고서 디렉토리에 저장
-                    diagram_path = os.path.join(output_dir, f"{target_bin.partno}_layer_{layer_num}.png")
+                    diagram_path = str(output_path / f"{target_bin.partno}_layer_{layer_num}.png")
                     generator.generate_layer_diagram(layer_num, diagram_path)
                     
                     # images 디렉토리에도 복사 (API 접근용)
                     image_filename = f"{target_bin.partno}_layer_{layer_num}.png"
-                    image_dest = os.path.join(images_dir, image_filename)
+                    image_dest = images_dir / image_filename
                     shutil.copy2(diagram_path, image_dest)
                     
                     layer_images.append(image_filename)  # 파일명만 저장
@@ -312,7 +314,7 @@ class PackingPipeline:
             # HTML 보고서 생성
             html_path = None
             if output_dir:
-                html_path = os.path.join(output_dir, f"{target_bin.partno}_report.html")
+                html_path = str(output_path / f"{target_bin.partno}_report.html")
                 # 이미지 경로를 상대 경로로 변환
                 generator.generate_html_report(html_path, layer_images)
             
@@ -322,7 +324,7 @@ class PackingPipeline:
             # 작업 지시서 생성
             work_instruction_path = None
             if output_dir:
-                work_instruction_path = os.path.join(output_dir, f"{target_bin.partno}_work_instruction.html")
+                work_instruction_path = str(output_path / f"{target_bin.partno}_work_instruction.html")
                 generator.generate_work_instruction_report(work_instruction_path, layer_images)
             
             detailed_report['work_instruction'] = Path(work_instruction_path).name if work_instruction_path else None

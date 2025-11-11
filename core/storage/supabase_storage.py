@@ -3,7 +3,7 @@ Supabase Storage 관리 모듈
 """
 import os
 from typing import Optional, BinaryIO
-from supabase_client import supabase_client
+from core.storage.supabase_client import supabase_client
 
 class SupabaseStorage:
     """Supabase Storage 관리 클래스"""

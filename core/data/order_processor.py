@@ -4,7 +4,7 @@
 """
 import csv
 from typing import List, Dict
-from master_data_manager import MasterDataManager
+from core.data.master_manager import MasterDataManager
 
 class OrderProcessor:
     """주문서 처리 클래스"""

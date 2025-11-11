@@ -1,5 +1,7 @@
 
-import flask, json, random
+import flask
+import json
+import random
 import os
 import uuid
 from datetime import datetime, timedelta
@@ -8,14 +10,17 @@ from werkzeug.utils import secure_filename
 from py3dbp import Packer, Bin, Item
 from flask_cors import cross_origin
 from flask import render_template, send_from_directory, request
-from csv_data_processor import CSVDataProcessor
-from packing_pipeline import PackingPipeline
-from master_data_manager import MasterDataManager
-from order_processor import OrderProcessor
+
+# 새로운 모듈 구조 import
+from core.data.csv_processor import CSVDataProcessor
+from core.packing.pipeline import PackingPipeline
+from core.data.master_manager import MasterDataManager
+from core.data.order_processor import OrderProcessor
+from config.settings import Config
 
 # Supabase 사용 시도
 try:
-    from supabase_client import supabase_client
+    from core.storage.supabase_client import supabase_client
     USE_SUPABASE_SESSION = True
 except ImportError:
     USE_SUPABASE_SESSION = False
@@ -23,9 +28,8 @@ except ImportError:
 
 # init flask
 app = flask.Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['OUTPUT_FOLDER'] = 'output'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config.from_object(Config)
+Config.init_app(app)
 
 # load data
 try:
@@ -289,8 +293,8 @@ def upload_master():
     try:
         # 파일 저장
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"master_{filename}")
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        filepath = os.path.join(str(Config.UPLOAD_FOLDER), f"master_{filename}")
+        Config.UPLOAD_FOLDER.mkdir(exist_ok=True)
         file.save(filepath)
         
         # CSV 처리
@@ -350,8 +354,8 @@ def upload_order():
     try:
         # 파일 저장
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"order_{filename}")
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        filepath = os.path.join(str(Config.UPLOAD_FOLDER), f"order_{filename}")
+        Config.UPLOAD_FOLDER.mkdir(exist_ok=True)
         file.save(filepath)
         
         # 주문서 처리
@@ -429,8 +433,8 @@ def upload_csv():
     try:
         # 파일 저장
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        filepath = os.path.join(str(Config.UPLOAD_FOLDER), filename)
+        Config.UPLOAD_FOLDER.mkdir(exist_ok=True)
         file.save(filepath)
         
         # CSV 처리
@@ -553,20 +557,20 @@ def visualize():
         )
         
         # 시각화 생성
-        images_dir = os.path.join(app.config['OUTPUT_FOLDER'], 'images')
-        image_paths = pipeline.visualize_results(save_path=images_dir, alpha=0.2)
+        images_dir = Config.OUTPUT_FOLDER / 'images'
+        image_paths = pipeline.visualize_results(save_path=str(images_dir), alpha=0.2)
         
         # 기본 리포트 생성
-        report_dir = os.path.join(app.config['OUTPUT_FOLDER'], 'reports')
-        os.makedirs(report_dir, exist_ok=True)
+        report_dir = Config.OUTPUT_FOLDER / 'reports'
+        report_dir.mkdir(exist_ok=True)
         report_filename = f"{session_id}.json"
-        report_path = os.path.join(report_dir, report_filename)
-        report = pipeline.generate_report(report_path)
+        report_path = report_dir / report_filename
+        report = pipeline.generate_report(str(report_path))
         
         # 상세 보고서 생성 (레이어별 정보)
-        detailed_report_dir = os.path.join(report_dir, session_id)
+        detailed_report_dir = report_dir / session_id
         detailed_report = pipeline.generate_detailed_report(
-            output_dir=detailed_report_dir,
+            output_dir=str(detailed_report_dir),
             include_layer_diagrams=True
         )
         
@@ -589,10 +593,10 @@ def visualize():
 def get_report(session_id):
     """리포트 다운로드"""
     try:
-        report_path = os.path.join(app.config['OUTPUT_FOLDER'], 'reports', f"{session_id}.json")
-        if os.path.exists(report_path):
+        report_path = Config.OUTPUT_FOLDER / 'reports' / f"{session_id}.json"
+        if report_path.exists():
             return send_from_directory(
-                os.path.join(app.config['OUTPUT_FOLDER'], 'reports'),
+                str(Config.OUTPUT_FOLDER / 'reports'),
                 f"{session_id}.json",
                 as_attachment=True,
                 download_name=f"packing_report_{session_id}.json"
@@ -608,12 +612,12 @@ def get_report(session_id):
 def get_html_report(session_id, bin_name):
     """HTML 보고서 조회"""
     try:
-        report_dir = os.path.join(app.config['OUTPUT_FOLDER'], 'reports', session_id)
+        report_dir = Config.OUTPUT_FOLDER / 'reports' / session_id
         html_file = f"{bin_name}_report.html"
-        html_path = os.path.join(report_dir, html_file)
+        html_path = report_dir / html_file
         
-        if os.path.exists(html_path):
-            return send_from_directory(report_dir, html_file)
+        if html_path.exists():
+            return send_from_directory(str(report_dir), html_file)
         else:
             return flask.jsonify({"Success": False, "Reason": "HTML 보고서를 찾을 수 없습니다"}), 404
     except Exception as e:
@@ -625,12 +629,12 @@ def get_html_report(session_id, bin_name):
 def get_work_instruction(session_id, bin_name):
     """작업 지시서 형태의 보고서 조회"""
     try:
-        report_dir = os.path.join(app.config['OUTPUT_FOLDER'], 'reports', session_id)
+        report_dir = Config.OUTPUT_FOLDER / 'reports' / session_id
         work_file = f"{bin_name}_work_instruction.html"
-        work_path = os.path.join(report_dir, work_file)
+        work_path = report_dir / work_file
         
-        if os.path.exists(work_path):
-            return send_from_directory(report_dir, work_file)
+        if work_path.exists():
+            return send_from_directory(str(report_dir), work_file)
         else:
             return flask.jsonify({"Success": False, "Reason": "작업 지시서를 찾을 수 없습니다"}), 404
     except Exception as e:
@@ -642,9 +646,9 @@ def get_work_instruction(session_id, bin_name):
 def get_detailed_report(session_id):
     """상세 보고서 데이터 조회"""
     try:
-        report_dir = os.path.join(app.config['OUTPUT_FOLDER'], 'reports', session_id)
+        report_dir = Config.OUTPUT_FOLDER / 'reports' / session_id
         
-        if not os.path.exists(report_dir):
+        if not report_dir.exists():
             return flask.jsonify({"Success": False, "Reason": "보고서를 찾을 수 없습니다"}), 404
         
         # 리포트 파일들 찾기
@@ -672,7 +676,7 @@ def get_image(filename):
     """생성된 이미지 조회"""
     try:
         return send_from_directory(
-            os.path.join(app.config['OUTPUT_FOLDER'], 'images'),
+            str(Config.OUTPUT_FOLDER / 'images'),
             filename
         )
     except Exception as e:

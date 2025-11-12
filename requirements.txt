@@ -19,6 +19,12 @@ flask-limiter>=3.0.0,<4.0.0
 # Production Server
 gunicorn>=20.1.0,<22.0.0
 
+# Reinforcement Learning
+gymnasium>=0.29.0,<1.0.0
+stable-baselines3>=2.0.0,<3.0.0
+scipy>=1.9.0,<2.0.0
+torch>=2.0.0,<3.0.0
+
 # Development & Testing (optional - install with pip install -r requirements-dev.txt)
 # pytest>=7.0.0,<8.0.0
 # pytest-flask>=1.2.0,<2.0.0

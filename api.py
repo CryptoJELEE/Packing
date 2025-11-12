@@ -16,7 +16,20 @@ from core.data.csv_processor import CSVDataProcessor
 from core.packing.pipeline import PackingPipeline
 from core.data.master_manager import MasterDataManager
 from core.data.order_processor import OrderProcessor
-from config.settings import Config
+from config.settings import get_config
+from core.utils import (
+    setup_logger,
+    get_logger,
+    FileValidator,
+    CSVSanitizer,
+    APIResponse,
+    ErrorHandler,
+    SecurityHeaders,
+    setup_rate_limiting
+)
+
+# 환경 설정 로드
+config_class = get_config()
 
 # Supabase 사용 시도
 try:
@@ -24,18 +37,39 @@ try:
     USE_SUPABASE_SESSION = True
 except ImportError:
     USE_SUPABASE_SESSION = False
-    print("Supabase 클라이언트를 사용할 수 없습니다. 인메모리 세션을 사용합니다.")
 
 # init flask
 app = flask.Flask(__name__)
-app.config.from_object(Config)
-Config.init_app(app)
+app.config.from_object(config_class)
+config_class.init_app(app)
+
+# 로거 설정
+logger = setup_logger(
+    name='packing',
+    log_file=app.config.get('LOG_FILE'),
+    level=app.config.get('LOG_LEVEL', 'INFO')
+)
+logger.info(f"애플리케이션 시작 - 환경: {app.config.get('ENV', 'development')}")
+
+if not USE_SUPABASE_SESSION:
+    logger.warning("Supabase 클라이언트를 사용할 수 없습니다. 인메모리 세션을 사용합니다.")
+
+# 에러 핸들러 등록
+ErrorHandler.register_handlers(app)
+
+# 보안 헤더 설정
+SecurityHeaders.init_app(app)
+
+# Rate Limiting 설정 (선택적)
+limiter = setup_rate_limiting(app)
 
 # load data
 try:
-    with open('widadvance.json',encoding='utf-8') as f:
+    with open('widadvance.json', encoding='utf-8') as f:
         alldata = json.load(f)
-except:
+    logger.info("widadvance.json 파일 로드 성공")
+except (FileNotFoundError, json.JSONDecodeError) as e:
+    logger.warning(f"widadvance.json 로드 실패: {e}")
     alldata = {"box": [], "item": []}
 
 # 세션 데이터 저장 (Supabase 우선, 실패 시 인메모리)
@@ -124,13 +158,19 @@ def mkResultAPI():
     '''
     res = {"Success": False}
     if flask.request.method == "POST":
-        q= eval(flask.request.data.decode('utf-8'))
+        try:
+            q = flask.request.get_json()
+            if q is None:
+                q = json.loads(flask.request.data.decode('utf-8'))
+        except (json.JSONDecodeError, ValueError) as e:
+            res["Reason"] = f"Invalid JSON: {str(e)}"
+            return flask.jsonify(res)
         if 'box' in q.keys() and 'item' in q.keys() and 'binding' in q.keys():
-            try :
-                packer,box,binding = getBoxAndItem(q)
-            except :
-                res["Reason"] = "input data err"
-                return res
+            try:
+                packer, box, binding = getBoxAndItem(q)
+            except (KeyError, ValueError, TypeError) as e:
+                res["Reason"] = f"Input data error: {str(e)}"
+                return flask.jsonify(res)
             try :
                 # calculate packing
                 packer.pack(bigger_first=True,distribute_items=False,fix_point=True,binding=binding,
@@ -275,46 +315,48 @@ def randColor(s):
 @cross_origin()
 def upload_master():
     """자재마스터 CSV 업로드 및 저장"""
-    res = {"Success": False}
-    
     if 'file' not in request.files:
-        res["Reason"] = "파일이 없습니다"
-        return flask.jsonify(res)
-    
+        return APIResponse.error("파일이 없습니다", status_code=400)
+
     file = request.files['file']
-    if file.filename == '':
-        res["Reason"] = "파일이 선택되지 않았습니다"
-        return flask.jsonify(res)
-    
-    if not file.filename.endswith('.csv'):
-        res["Reason"] = "CSV 파일만 업로드 가능합니다"
-        return flask.jsonify(res)
-    
+
+    # 파일 검증
+    is_valid, error_msg = FileValidator.validate_csv_file(file)
+    if not is_valid:
+        return APIResponse.error(error_msg, status_code=400)
+
     try:
         # 파일 저장
         filename = secure_filename(file.filename)
-        filepath = os.path.join(str(Config.UPLOAD_FOLDER), f"master_{filename}")
-        Config.UPLOAD_FOLDER.mkdir(exist_ok=True)
+        filepath = os.path.join(str(config_class.UPLOAD_FOLDER), f"master_{filename}")
+        config_class.UPLOAD_FOLDER.mkdir(exist_ok=True)
         file.save(filepath)
-        
+        logger.info(f"마스터 CSV 파일 저장: {filepath}")
+
+        # CSV 내용 검증
+        is_valid, error_msg = CSVSanitizer.validate_csv_content(filepath)
+        if not is_valid:
+            os.remove(filepath)  # 잘못된 파일 삭제
+            return APIResponse.error(error_msg, status_code=400)
+
         # CSV 처리
         processor = CSVDataProcessor(filepath)
         items = processor.process_all_items()
-        
+
         # 마스터 데이터에 추가
         master_manager.add_master_items(items)
         stats = master_manager.get_master_stats()
-        
-        res["Success"] = True
-        res["message"] = f"마스터 데이터 {len(items)}개 항목이 저장되었습니다."
-        res["stats"] = stats
-        
-        return flask.jsonify(res)
+
+        logger.info(f"마스터 데이터 {len(items)}개 항목 저장 완료")
+
+        return APIResponse.success(
+            message=f"마스터 데이터 {len(items)}개 항목이 저장되었습니다.",
+            stats=stats,
+            total_items=len(items)
+        )
     except Exception as e:
-        res["Reason"] = f"파일 처리 오류: {str(e)}"
-        import traceback
-        traceback.print_exc()
-        return flask.jsonify(res)
+        logger.error(f"마스터 데이터 업로드 오류: {e}", exc_info=True)
+        return APIResponse.internal_error("파일 처리 중 오류가 발생했습니다", exception=e)
 
 # 마스터 상태 확인
 @app.route('/api/getMasterStatus', methods=['GET'])
@@ -332,37 +374,38 @@ def get_master_status():
 @cross_origin()
 def upload_order():
     """주문서 CSV 업로드 및 처리"""
-    res = {"Success": False}
-    
     if not master_manager.has_master_data():
-        res["Reason"] = "먼저 자재마스터를 업로드해주세요."
-        return flask.jsonify(res)
-    
+        return APIResponse.error("먼저 자재마스터를 업로드해주세요.", status_code=400)
+
     if 'file' not in request.files:
-        res["Reason"] = "파일이 없습니다"
-        return flask.jsonify(res)
-    
+        return APIResponse.error("파일이 없습니다", status_code=400)
+
     file = request.files['file']
-    if file.filename == '':
-        res["Reason"] = "파일이 선택되지 않았습니다"
-        return flask.jsonify(res)
-    
-    if not file.filename.endswith('.csv'):
-        res["Reason"] = "CSV 파일만 업로드 가능합니다"
-        return flask.jsonify(res)
-    
+
+    # 파일 검증
+    is_valid, error_msg = FileValidator.validate_csv_file(file)
+    if not is_valid:
+        return APIResponse.error(error_msg, status_code=400)
+
     try:
         # 파일 저장
         filename = secure_filename(file.filename)
-        filepath = os.path.join(str(Config.UPLOAD_FOLDER), f"order_{filename}")
-        Config.UPLOAD_FOLDER.mkdir(exist_ok=True)
+        filepath = os.path.join(str(config_class.UPLOAD_FOLDER), f"order_{filename}")
+        config_class.UPLOAD_FOLDER.mkdir(exist_ok=True)
         file.save(filepath)
-        
+        logger.info(f"주문 CSV 파일 저장: {filepath}")
+
+        # CSV 내용 검증
+        is_valid, error_msg = CSVSanitizer.validate_csv_content(filepath)
+        if not is_valid:
+            os.remove(filepath)
+            return APIResponse.error(error_msg, status_code=400)
+
         # 주문서 처리
         order_processor = OrderProcessor(master_manager)
         orders = order_processor.read_order_csv(filepath)
         result = order_processor.process_orders_with_master()
-        
+
         # 세션 ID 생성
         session_id = str(uuid.uuid4())
         save_session(session_id, 'order', {
@@ -371,21 +414,21 @@ def upload_order():
             'unmatched_items': result['unmatched_items'],
             'filepath': filepath
         })
-        
-        res["Success"] = True
-        res["session_id"] = session_id
-        res["matched_count"] = len(result['matched_items'])
-        res["unmatched_count"] = len(result['unmatched_items'])
-        res["total_quantity"] = result['total_quantity']
-        res["matched_items"] = result['matched_items'][:50]  # 미리보기
-        res["unmatched_items"] = result['unmatched_items']
-        
-        return flask.jsonify(res)
+
+        logger.info(f"주문서 처리 완료 - 세션ID: {session_id}, 매칭: {len(result['matched_items'])}, 미매칭: {len(result['unmatched_items'])}")
+
+        return APIResponse.success(
+            message="주문서 처리 완료",
+            session_id=session_id,
+            matched_count=len(result['matched_items']),
+            unmatched_count=len(result['unmatched_items']),
+            total_quantity=result['total_quantity'],
+            matched_items=result['matched_items'][:50],  # 미리보기
+            unmatched_items=result['unmatched_items']
+        )
     except Exception as e:
-        res["Reason"] = f"주문서 처리 오류: {str(e)}"
-        import traceback
-        traceback.print_exc()
-        return flask.jsonify(res)
+        logger.error(f"주문서 업로드 오류: {e}", exc_info=True)
+        return APIResponse.internal_error("주문서 처리 중 오류가 발생했습니다", exception=e)
 
 # 주문서 아이템 조회
 @app.route('/api/getOrderItems', methods=['GET'])
@@ -722,7 +765,11 @@ def cal_packing():
             if request.is_json:
                 q = request.get_json()
             else:
-                q = eval(request.data.decode('utf-8'))
+                try:
+                    q = json.loads(request.data.decode('utf-8'))
+                except (json.JSONDecodeError, ValueError) as e:
+                    res["Reason"] = f"Invalid JSON: {str(e)}"
+                    return flask.jsonify(res)
             
             # CSV 세션에서 가져오기
             session_id = q.get('session_id')
@@ -785,8 +832,8 @@ def cal_packing():
                 if 'box' in q.keys() and 'item' in q.keys() and 'binding' in q.keys():
                     try:
                         packer, box, binding = getBoxAndItem(q)
-                    except:
-                        res["Reason"] = "input data err"
+                    except (KeyError, ValueError, TypeError) as e:
+                        res["Reason"] = f"Input data error: {str(e)}"
                         return flask.jsonify(res)
                     try:
                         # calculate packing

@@ -1,19 +1,87 @@
-__pycache__
-build
-dist
-*.egg-info
-.pypirc
-.vscode
-venv
-test
-setup.py
-venv
-debug.log
-test*
-.env
-*.log
-server.log
-output/
-uploads/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 *.pyc
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
+.pypirc
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+debug.log
+server.log
+
+# Uploads & Output
+uploads/
+!uploads/.gitkeep
+output/
+!output/images/.gitkeep
+!output/reports/.gitkeep
+
+# Data
+data/
+!data/.gitkeep
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Project Specific
+widadvance.json
+setup.py

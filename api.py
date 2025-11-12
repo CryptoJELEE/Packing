@@ -14,6 +14,7 @@ from flask import render_template, send_from_directory, request
 # 새로운 모듈 구조 import
 from core.data.csv_processor import CSVDataProcessor
 from core.packing.pipeline import PackingPipeline
+from core.packing.helpers import PackingSerializer, ColorGenerator
 from core.data.master_manager import MasterDataManager
 from core.data.order_processor import OrderProcessor
 from config.settings import get_config
@@ -31,11 +32,14 @@ from core.utils import (
 # 환경 설정 로드
 config_class = get_config()
 
-# Supabase 사용 시도
+# Supabase 및 세션 관리
 try:
     from core.storage.supabase_client import supabase_client
+    from core.storage.session_manager import SessionManager
     USE_SUPABASE_SESSION = True
 except ImportError:
+    from core.storage.session_manager import SessionManager
+    supabase_client = None
     USE_SUPABASE_SESSION = False
 
 # init flask
@@ -72,64 +76,25 @@ except (FileNotFoundError, json.JSONDecodeError) as e:
     logger.warning(f"widadvance.json 로드 실패: {e}")
     alldata = {"box": [], "item": []}
 
-# 세션 데이터 저장 (Supabase 우선, 실패 시 인메모리)
-session_data = {}
+# 세션 매니저 초기화
+session_manager = SessionManager(
+    use_supabase=USE_SUPABASE_SESSION,
+    supabase_client=supabase_client if USE_SUPABASE_SESSION else None
+)
 
 # 전역 마스터 매니저
 master_manager = MasterDataManager()
 
-# Supabase 세션 관리 함수
-def save_session(session_id: str, session_type: str, data: dict):
-    """세션을 Supabase에 저장 (실패 시 인메모리)"""
-    if USE_SUPABASE_SESSION:
-        try:
-            sessions_table = supabase_client.get_table('sessions')
-            expires_at = (datetime.now() + timedelta(days=7)).isoformat()
-            
-            sessions_table.upsert({
-                'session_id': session_id,
-                'session_type': session_type,
-                'data': data,
-                'expires_at': expires_at
-            }).execute()
-            return True
-        except Exception as e:
-            print(f"Supabase 세션 저장 오류: {str(e)}, 인메모리로 저장")
-    
-    # 인메모리 저장
-    session_data[session_id] = {
-        'type': session_type,
-        **data
-    }
-    return True
+
+# 세션 관리 래퍼 함수 (하위 호환성)
+def save_session(session_id: str, session_type: str, data: dict) -> bool:
+    """세션 저장 (SessionManager 래퍼)"""
+    return session_manager.save(session_id, session_type, data)
+
 
 def get_session(session_id: str) -> Optional[Dict]:
-    """Supabase에서 세션 조회 (실패 시 인메모리)"""
-    if USE_SUPABASE_SESSION:
-        try:
-            sessions_table = supabase_client.get_table('sessions')
-            response = sessions_table.select("*").eq('session_id', session_id).execute()
-            
-            if response.data and len(response.data) > 0:
-                session = response.data[0]
-                # 만료 확인
-                expires_at = session.get('expires_at')
-                if expires_at:
-                    try:
-                        exp_time = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
-                        if exp_time < datetime.now(exp_time.tzinfo):
-                            return None
-                    except:
-                        pass
-                
-                session_data_dict = session.get('data', {})
-                session_data_dict['type'] = session.get('session_type', '')
-                return session_data_dict
-        except Exception as e:
-            print(f"Supabase 세션 조회 오류: {str(e)}, 인메모리에서 조회")
-    
-    # 인메모리에서 조회
-    return session_data.get(session_id)
+    """세션 조회 (SessionManager 래퍼)"""
+    return session_manager.get(session_id)
 
 # 웹 인터페이스
 @app.route('/')
@@ -207,58 +172,49 @@ def mkResultAPI():
         return res
 
 
-def makeDictBox(box):
-    position = (int(box.width)/2,int(box.height)/2,int(box.depth)/2)
-    r = {
-            "partNumber" : box.partno,
-            "position" : position,
-            "WHD" : (int(box.width),int(box.height),int(box.depth)),
-            "weight" : int(box.max_weight),
-            "gravity" : box.gravity
-        }
-    return [r]
+def makeDictBox(box: Bin) -> list:
+    """
+    박스를 딕셔너리로 변환
+
+    Args:
+        box: py3dbp Bin 객체
+
+    Returns:
+        박스 정보 딕셔너리 리스트
+    """
+    return [PackingSerializer.serialize_box(box)]
 
 
-def makeDictItem(item):
-    ''' '''
+def makeDictItem(item: Item) -> Dict:
+    """
+    아이템을 딕셔너리로 변환
 
-    if item.rotation_type == 0:
-        pos = (int(item.position[0]) + int(item.width)//2,int(item.position[1])+ int(item.height)//2,int(item.position[2])+ int(item.depth)//2)
-        whd = (int(item.width),int(item.height),int(item.depth))
-    elif item.rotation_type == 1:
-        pos = (int(item.position[0])+ int(item.height)//2,int(item.position[1]) + int(item.width)//2,int(item.position[2])+ int(item.depth)//2)
-        whd = (int(item.height),int(item.width),int(item.depth))
-    elif item.rotation_type == 2:
-        pos = (int(item.position[0])+ int(item.height)//2,int(item.position[1])+ int(item.depth)//2,int(item.position[2]) + int(item.width)//2)
-        whd = (int(item.height),int(item.depth),int(item.width))
-    elif item.rotation_type == 3:
-        pos = (int(item.position[0])+ int(item.depth)//2,int(item.position[1])+ int(item.height)//2,int(item.position[2]) + int(item.width)//2)
-        whd = (int(item.depth),int(item.height),int(item.width))
-    elif item.rotation_type == 4:
-        pos = (int(item.position[0])+ int(item.depth)//2,int(item.position[1]) + int(item.width)//2,int(item.position[2])+ int(item.height)//2)
-        whd = (int(item.depth),int(item.width),int(item.height))
-    elif item.rotation_type == 5:
-        pos = (int(item.position[0]) + int(item.width)//2,int(item.position[1])+ int(item.depth)//2,int(item.position[2])+ int(item.height)//2)
-        whd = (int(item.width),int(item.depth),int(item.height))
-    
-    r = {
-        "partNumber" : item.partno,
-        "name" : item.name,
-        "type" : item.typeof,
-        "color" : item.color,
-        "position" : pos,
-        "rotationType" : item.rotation_type,
-        "WHD" : whd,
-        "weight" : int(item.weight)
-    }
+    Args:
+        item: py3dbp Item 객체
 
-    return r
+    Returns:
+        아이템 정보 딕셔너리
+    """
+    return PackingSerializer.serialize_item(item)
 
 
-def getBoxAndItem(data):
-    ''' '''
+def getBoxAndItem(data: Dict) -> tuple[Packer, Bin, list]:
+    """
+    입력 데이터에서 Packer, Bin, binding 생성
+
+    Args:
+        data: 박스와 아이템 정보를 담은 딕셔너리
+
+    Returns:
+        (packer, box, binding) 튜플
+
+    Raises:
+        KeyError: 필수 키가 없을 때
+        ValueError: 데이터 형식이 잘못되었을 때
+    """
     # init packer
     packer = Packer()
+
     # get bin data
     box_data = data["box"][0]
     box = Bin(
@@ -267,47 +223,44 @@ def getBoxAndItem(data):
         max_weight=box_data['weight'],
         corner=box_data['coner'],
         put_type=box_data['openTop'][0]
-        )
+    )
     packer.addBin(box)
-    # get item data  TODO
+
+    # get item data
     item_data = data["item"]
-    color_dict = {
-        1:'red',
-        2:'yellow',
-        3:'blue',
-        4:'green',
-        5:'purple',
-        6:'brown',
-        7:'orange'
-    }
-    for i in item_data :
-        for j in range(i['count']) :
+    for item_info in item_data:
+        count = item_info['count']
+        for j in range(count):
             packer.addItem(Item(
-            partno = i['name']+'-{}'.format(str(j+1)),
-            name = i['name'],
-            typeof = 'cylinder' if i['type'] == 2 else 'cube',
-            WHD = i['WHD'], 
-            weight = i['weight'],
-            level = 1 if i['level'] == 1 else 2,
-            loadbear = i['loadbear'],
-            updown = bool(i['updown']),
-            color = randColor(i['color']))
-        )
+                partno=f"{item_info['name']}-{j+1}",
+                name=item_info['name'],
+                typeof='cylinder' if item_info['type'] == 2 else 'cube',
+                WHD=item_info['WHD'],
+                weight=item_info['weight'],
+                level=1 if item_info['level'] == 1 else 2,
+                loadbear=item_info['loadbear'],
+                updown=bool(item_info['updown']),
+                color=randColor(item_info['color'])
+            ))
+
+    # get binding data
     binding_data = data['binding']
-    binding = []
-    if len(binding_data) != 0:
-        for i in binding_data :
-            binding.append(tuple(i))
+    binding = [tuple(b) for b in binding_data] if binding_data else []
 
-    return packer,box,binding
+    return packer, box, binding
 
 
-def randColor(s):
-    ''' '''
-    random.seed(s)
-    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+def randColor(seed: int) -> str:
+    """
+    시드값으로 랜덤 색상 생성
 
-    return color
+    Args:
+        seed: 색상 시드값
+
+    Returns:
+        HEX 색상 코드
+    """
+    return ColorGenerator.generate_color(seed)
 
 
 # 마스터 데이터 업로드

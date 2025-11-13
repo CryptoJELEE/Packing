@@ -49,13 +49,59 @@ document.getElementById('download-report-btn').addEventListener('click', downloa
 document.getElementById('view-detailed-report-btn').addEventListener('click', viewDetailedReport);
 document.getElementById('view-work-instruction-btn').addEventListener('click', viewWorkInstruction);
 
+// 파레트 타입 변경 시 치수 자동 설정
+const palletTypeSelect = document.getElementById('pallet-type');
+if (palletTypeSelect) {
+    palletTypeSelect.addEventListener('change', function() {
+        const boxName = document.getElementById('box-name');
+        const boxWidth = document.getElementById('box-width');
+        const boxHeight = document.getElementById('box-height');
+        const boxDepth = document.getElementById('box-depth');
+        const boxWeight = document.getElementById('box-weight');
+
+        if (this.value === 'T-11') {
+            // T-11형: 110cm × 110cm
+            boxName.value = 'T-11형 파레트';
+            boxWidth.value = '110';
+            boxHeight.value = '110';
+            boxDepth.value = '150';
+            boxWeight.value = '1000';
+            // 입력 필드 비활성화
+            boxWidth.disabled = false;
+            boxHeight.disabled = false;
+            boxDepth.disabled = false;
+            boxWeight.disabled = false;
+        } else if (this.value === 'T-12') {
+            // T-12형: 120cm × 100cm
+            boxName.value = 'T-12형 파레트';
+            boxWidth.value = '120';
+            boxHeight.value = '100';
+            boxDepth.value = '150';
+            boxWeight.value = '1000';
+            // 입력 필드 비활성화
+            boxWidth.disabled = false;
+            boxHeight.disabled = false;
+            boxDepth.disabled = false;
+            boxWeight.disabled = false;
+        } else if (this.value === 'custom') {
+            // 사용자 정의
+            boxName.value = '사용자 정의 파레트';
+            // 입력 필드 활성화
+            boxWidth.disabled = false;
+            boxHeight.disabled = false;
+            boxDepth.disabled = false;
+            boxWeight.disabled = false;
+        }
+    });
+}
+
 // 파레트 모드 변경 시 지지면 비율 입력 비활성화
 const isPalletCheckbox = document.getElementById('is-pallet');
 if (isPalletCheckbox) {
     isPalletCheckbox.addEventListener('change', function() {
         const supportRatioInput = document.getElementById('support-ratio');
         const checkStableCheckbox = document.getElementById('check-stable');
-        
+
         if (this.checked) {
             // 파레트 모드: 지지면 비율 체크 비활성화
             supportRatioInput.disabled = true;

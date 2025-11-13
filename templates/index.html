@@ -74,38 +74,45 @@
                 <div id="stats-content"></div>
             </section>
 
-            <!-- 박스 설정 섹션 -->
+            <!-- 파레트 설정 섹션 -->
             <section id="box-section" class="card" style="display: none;">
-                <h2>3. 박스 설정</h2>
+                <h2>3. 파레트 설정</h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>박스 이름</label>
-                        <input type="text" id="box-name" value="20ft_Container" placeholder="박스 이름">
+                        <label>파레트 타입</label>
+                        <select id="pallet-type" style="padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em;">
+                            <option value="T-11">T-11형 (110cm × 110cm)</option>
+                            <option value="T-12">T-12형 (120cm × 100cm)</option>
+                            <option value="custom">사용자 정의</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>파레트 이름</label>
+                        <input type="text" id="box-name" value="T-11형 파레트" placeholder="파레트 이름">
                     </div>
                     <div class="form-group">
                         <label>가로 (cm)</label>
-                        <input type="number" id="box-width" value="589.8" step="0.1">
+                        <input type="number" id="box-width" value="110" step="0.1">
                     </div>
                     <div class="form-group">
                         <label>세로 (cm)</label>
-                        <input type="number" id="box-height" value="243.8" step="0.1">
+                        <input type="number" id="box-height" value="110" step="0.1">
                     </div>
                     <div class="form-group">
-                        <label>높이 (cm)</label>
-                        <input type="number" id="box-depth" value="259.1" step="0.1">
+                        <label>적재 높이 (cm)</label>
+                        <input type="number" id="box-depth" value="150" step="0.1">
+                        <small style="display: block; color: #666; margin-top: 5px;">
+                            파레트 위에 쌓을 수 있는 최대 높이
+                        </small>
                     </div>
                     <div class="form-group">
-                        <label>최대 무게 (kg)</label>
-                        <input type="number" id="box-weight" value="28080" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>코너 크기 (cm)</label>
-                        <input type="number" id="box-corner" value="15" step="1">
+                        <label>최대 적재 중량 (kg)</label>
+                        <input type="number" id="box-weight" value="1000" step="10">
                     </div>
                     <div class="form-group checkbox-group">
                         <label>
-                            <input type="checkbox" id="is-pallet">
-                            파레트 적재 (지지면 없음)
+                            <input type="checkbox" id="is-pallet" checked>
+                            파레트 모드
                         </label>
                         <small style="display: block; color: #666; margin-top: 5px;">
                             파레트는 평평한 플랫폼이므로 바닥에 직접 올라가는 아이템은 지지면 비율 체크를 하지 않습니다.

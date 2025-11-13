@@ -6,7 +6,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #E31E24 0%, #B71C1C 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     min-height: 100vh;
     padding: 20px;
     color: #333;
@@ -40,26 +40,28 @@ header p {
     border-radius: 12px;
     padding: 30px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #e0e0e0;
 }
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.4);
 }
 
 .card h2 {
-    color: #E31E24;
+    color: #000000;
     margin-bottom: 20px;
     font-size: 1.5em;
-    border-bottom: 2px solid #E31E24;
+    border-bottom: 2px solid #000000;
     padding-bottom: 10px;
+    font-weight: 600;
 }
 
 /* 업로드 영역 */
 .upload-area {
-    border: 2px dashed #E31E24;
+    border: 2px dashed #000000;
     border-radius: 8px;
     padding: 40px;
     text-align: center;
@@ -69,22 +71,23 @@ header p {
 
 .upload-area:hover {
     background: #e9ecef;
-    border-color: #B71C1C;
+    border-color: #333333;
 }
 
 .upload-label {
     display: inline-block;
     cursor: pointer;
     padding: 15px 30px;
-    background: #E31E24;
+    background: #000000;
     color: white;
     border-radius: 6px;
     font-size: 1.1em;
     transition: background 0.3s;
+    font-weight: 500;
 }
 
 .upload-label:hover {
-    background: #B71C1C;
+    background: #333333;
 }
 
 .upload-icon {
@@ -112,14 +115,15 @@ header p {
 }
 
 .btn-primary {
-    background: #E31E24;
+    background: #000000;
     color: white;
+    font-weight: 500;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #B71C1C;
+    background: #333333;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .btn-primary:disabled {
@@ -128,12 +132,15 @@ header p {
 }
 
 .btn-secondary {
-    background: #6c757d;
+    background: #4a4a4a;
     color: white;
+    font-weight: 500;
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
+    background: #666666;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 /* 폼 그리드 */
@@ -156,7 +163,8 @@ header p {
 }
 
 .form-group input[type="text"],
-.form-group input[type="number"] {
+.form-group input[type="number"],
+.form-group select {
     padding: 10px;
     border: 2px solid #ddd;
     border-radius: 6px;
@@ -164,9 +172,10 @@ header p {
     transition: border-color 0.3s;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
-    border-color: #E31E24;
+    border-color: #000000;
 }
 
 .checkbox-group label {
@@ -215,12 +224,13 @@ header p {
     background: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
-    border-left: 4px solid #E31E24;
+    border-left: 4px solid #000000;
 }
 
 .stat-box h3 {
-    color: #E31E24;
+    color: #000000;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .stat-box ul {
@@ -254,9 +264,9 @@ header p {
 }
 
 .category-filter.active {
-    background: #E31E24;
+    background: #000000;
     color: white;
-    border-color: #E31E24;
+    border-color: #000000;
 }
 
 /* 아이템 리스트 */
@@ -271,10 +281,15 @@ header p {
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
-    border-left: 4px solid #E31E24;
+    border-left: 4px solid #000000;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: background 0.2s;
+}
+
+.item-card:hover {
+    background: #e9ecef;
 }
 
 .item-info {
@@ -282,8 +297,9 @@ header p {
 }
 
 .item-info h4 {
-    color: #E31E24;
+    color: #000000;
     margin-bottom: 5px;
+    font-weight: 600;
 }
 
 .item-info p {
@@ -314,11 +330,12 @@ header p {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #E31E24 0%, #B71C1C 100%);
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
     color: white;
     padding: 20px;
     border-radius: 8px;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .stat-card h3 {

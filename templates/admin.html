@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - 3D Bin Packing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* 어드민 전용 스타일 */
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-header h1 {
+            color: white;
+            margin: 0;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* 로그인 폼 */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .login-form button:hover {
+            background: #333;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* 통계 카드 그리드 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card-large {
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .stat-card-large h3 {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+        }
+
+        .stat-card-large p {
+            margin: 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* 차트 컨테이너 */
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h2 {
+            margin-top: 0;
+            color: #000;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .chart-canvas {
+            max-height: 400px;
+        }
+
+        /* 테이블 스타일 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-success {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .status-error {
+            color: #f44336;
+            font-weight: 600;
+        }
+
+        /* 필터 섹션 */
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-section label {
+            font-weight: 600;
+        }
+
+        .filter-section select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+        }
+
+        /* 탭 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #000;
+        }
+
+        .tab.active {
+            color: #000;
+            border-bottom-color: #000;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 로딩 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        /* 히든 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 내보내기 버튼 */
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: #4a4a4a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .export-btn:hover {
+            background: #666;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- 로그인 화면 -->
+    <div id="login-screen" class="login-container">
+        <h2>🔒 관리자 로그인</h2>
+        <form class="login-form" onsubmit="handleLogin(event)">
+            <input type="password" id="admin-password" placeholder="비밀번호를 입력하세요" required>
+            <button type="submit">로그인</button>
+            <div id="login-error" class="error-message hidden"></div>
+        </form>
+    </div>
+
+    <!-- 대시보드 화면 -->
+    <div id="dashboard-screen" class="admin-container hidden">
+        <div class="admin-header">
+            <h1>📊 관리자 대시보드</h1>
+            <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card-large">
+                <h3 id="stat-total-sims">0</h3>
+                <p>총 시뮬레이션</p>
+            </div>
+            <div class="stat-card-large">
+                <h3 id="stat-avg-efficiency">0%</h3>
+                <p>평균 패킹 효율</p>
+            </div>
+            <div class="stat-card-large">
+                <h3 id="stat-success-rate">0%</h3>
+                <p>성공률</p>
+            </div>
+            <div class="stat-card-large">
+                <h3 id="stat-total-items">0</h3>
+                <p>처리된 아이템 수</p>
+            </div>
+        </div>
+
+        <!-- 필터 -->
+        <div class="card">
+            <div class="filter-section">
+                <label>기간:</label>
+                <select id="days-filter" onchange="handleFilterChange()">
+                    <option value="7">최근 7일</option>
+                    <option value="30" selected>최근 30일</option>
+                    <option value="90">최근 90일</option>
+                    <option value="365">최근 1년</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 차트 -->
+        <div class="chart-container">
+            <h2>일별 사용량</h2>
+            <canvas id="daily-chart" class="chart-canvas"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h2>시간대별 사용 패턴</h2>
+            <canvas id="hourly-chart" class="chart-canvas"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h2>파레트 타입별 사용 통계</h2>
+            <canvas id="pallet-chart" class="chart-canvas"></canvas>
+        </div>
+
+        <!-- 탭 -->
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('simulations')">시뮬레이션 기록</button>
+                <button class="tab" onclick="switchTab('errors')">에러 로그</button>
+            </div>
+
+            <!-- 시뮬레이션 탭 -->
+            <div id="tab-simulations" class="tab-content active">
+                <h3>최근 시뮬레이션</h3>
+                <div class="export-buttons">
+                    <button class="export-btn" onclick="exportData('simulations')">CSV 내보내기</button>
+                </div>
+                <div id="simulations-table"></div>
+            </div>
+
+            <!-- 에러 탭 -->
+            <div id="tab-errors" class="tab-content">
+                <h3>최근 에러 로그</h3>
+                <div class="export-buttons">
+                    <button class="export-btn" onclick="exportData('errors')">CSV 내보내기</button>
+                </div>
+                <div id="errors-table"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

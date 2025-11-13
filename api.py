@@ -18,6 +18,10 @@ from core.packing.pipeline import PackingPipeline
 from core.data.master_manager import MasterDataManager
 from core.data.order_processor import OrderProcessor
 from config.settings import Config
+from core.analytics.database import analytics_db
+import hashlib
+import traceback
+import time
 
 # Supabase 사용 시도
 try:
@@ -551,7 +555,8 @@ def visualize():
             item_counts = data.get('item_counts', {})
             pipeline.add_items_from_data(items, item_counts)
         
-        # 시뮬레이션 실행
+        # 시뮬레이션 실행 (시간 측정 시작)
+        start_time = time.time()
         sim_params = data.get('simulation_params', {})
         result = pipeline.run_simulation(
             bigger_first=sim_params.get('bigger_first', True),
@@ -563,6 +568,7 @@ def visualize():
             use_advanced_strategy=sim_params.get('use_advanced_strategy', False),
             try_multiple_strategies=sim_params.get('try_multiple_strategies', False)
         )
+        processing_time = time.time() - start_time
         
         # 시각화 생성
         images_dir = Config.OUTPUT_FOLDER / 'images'
@@ -591,17 +597,78 @@ def visualize():
             include_layer_diagrams=True
         )
         
+        # 데이터베이스에 로깅
+        try:
+            # 시뮬레이션 결과에서 통계 추출
+            total_items = sum([len(bin.items) + len(bin.unfitted_items) for bin in pipeline.packer.bins])
+            fitted_items = sum([len(bin.items) for bin in pipeline.packer.bins])
+            unfitted_items = total_items - fitted_items
+
+            # 부피 계산
+            total_volume = sum([bin.width * bin.height * bin.depth for bin in pipeline.packer.bins])
+            used_volume = sum([item.width * item.height * item.depth for bin in pipeline.packer.bins for item in bin.items])
+            packing_efficiency = (used_volume / total_volume * 100) if total_volume > 0 else 0
+
+            # 로그 데이터 생성
+            log_data = {
+                'session_id': session_id,
+                'pallet_type': box_data.get('name', 'Unknown'),
+                'pallet_width': box_data.get('WHD', [0, 0, 0])[0],
+                'pallet_height': box_data.get('WHD', [0, 0, 0])[1],
+                'pallet_depth': box_data.get('WHD', [0, 0, 0])[2],
+                'pallet_weight': box_data.get('weight', 0),
+                'total_items': total_items,
+                'fitted_items': fitted_items,
+                'unfitted_items': unfitted_items,
+                'packing_efficiency': packing_efficiency,
+                'total_volume': total_volume,
+                'used_volume': used_volume,
+                'processing_time': processing_time,
+                'bigger_first': 1 if sim_params.get('bigger_first', True) else 0,
+                'fix_point': 1 if sim_params.get('fix_point', True) else 0,
+                'check_stable': 1 if sim_params.get('check_stable', True) else 0,
+                'support_ratio': sim_params.get('support_surface_ratio', 0.75),
+                'use_advanced_strategy': 1 if sim_params.get('use_advanced_strategy', False) else 0,
+                'try_multiple_strategies': 1 if sim_params.get('try_multiple_strategies', False) else 0,
+                'strategy_used': result.get('strategy_used', 'default'),
+                'success': 1,
+                'error_message': None,
+                'ip_address': request.remote_addr,
+                'user_agent': request.headers.get('User-Agent', '')[:255]
+            }
+
+            analytics_db.log_simulation(log_data)
+        except Exception as log_error:
+            logger.error(f"시뮬레이션 로깅 오류: {str(log_error)}")
+            # 로깅 실패해도 결과는 반환
+
         res["Success"] = True
         res["images"] = image_paths
         res["result"] = result
         res["report_id"] = session_id
         res["detailed_report"] = detailed_report
-        
+
         return flask.jsonify(res)
     except Exception as e:
         res["Reason"] = f"시각화 생성 오류: {str(e)}"
         import traceback
         traceback.print_exc()
+
+        # 에러 로깅
+        try:
+            error_data = {
+                'error_type': type(e).__name__,
+                'error_message': str(e),
+                'stack_trace': traceback.format_exc(),
+                'endpoint': '/api/visualize',
+                'request_data': json.dumps(data) if 'data' in locals() else None,
+                'session_id': data.get('session_id') if 'data' in locals() else None,
+                'ip_address': request.remote_addr
+            }
+            analytics_db.log_error(error_data)
+        except Exception as log_error:
+            logger.error(f"에러 로깅 실패: {str(log_error)}")
+
         return flask.jsonify(res)
 
 # 리포트 다운로드
@@ -830,6 +897,164 @@ def cal_packing():
     else:
         res['Reason'] = 'method not POST'
         return flask.jsonify(res)
+
+# =================================
+# 어드민 관련 엔드포인트
+# =================================
+
+# 어드민 비밀번호 (환경 변수 또는 기본값)
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+
+def check_admin_auth():
+    """어드민 인증 확인"""
+    auth_token = request.headers.get('X-Admin-Token')
+    if not auth_token:
+        return False
+
+    # 간단한 토큰 검증 (비밀번호 해시)
+    expected_token = hashlib.sha256(ADMIN_PASSWORD.encode()).hexdigest()
+    return auth_token == expected_token
+
+@app.route('/admin')
+def admin_dashboard():
+    """어드민 대시보드 페이지"""
+    return render_template('admin.html')
+
+@app.route('/api/admin/login', methods=['POST'])
+@cross_origin()
+def admin_login():
+    """어드민 로그인"""
+    try:
+        data = request.get_json()
+        password = data.get('password', '')
+
+        if password == ADMIN_PASSWORD:
+            # 토큰 생성 (비밀번호 해시)
+            token = hashlib.sha256(password.encode()).hexdigest()
+            return flask.jsonify({
+                "Success": True,
+                "token": token
+            })
+        else:
+            return flask.jsonify({
+                "Success": False,
+                "Reason": "비밀번호가 올바르지 않습니다"
+            }), 401
+    except Exception as e:
+        return flask.jsonify({
+            "Success": False,
+            "Reason": str(e)
+        }), 500
+
+@app.route('/api/admin/statistics', methods=['GET'])
+@cross_origin()
+def admin_statistics():
+    """어드민 통계 조회"""
+    if not check_admin_auth():
+        return flask.jsonify({"Success": False, "Reason": "인증이 필요합니다"}), 401
+
+    try:
+        days = int(request.args.get('days', 30))
+        stats = analytics_db.get_statistics(days)
+
+        return flask.jsonify({
+            "Success": True,
+            "data": stats
+        })
+    except Exception as e:
+        logger.error(f"통계 조회 오류: {str(e)}")
+        return flask.jsonify({
+            "Success": False,
+            "Reason": str(e)
+        }), 500
+
+@app.route('/api/admin/simulations', methods=['GET'])
+@cross_origin()
+def admin_simulations():
+    """최근 시뮬레이션 목록 조회"""
+    if not check_admin_auth():
+        return flask.jsonify({"Success": False, "Reason": "인증이 필요합니다"}), 401
+
+    try:
+        limit = int(request.args.get('limit', 50))
+        simulations = analytics_db.get_recent_simulations(limit)
+
+        return flask.jsonify({
+            "Success": True,
+            "data": simulations
+        })
+    except Exception as e:
+        logger.error(f"시뮬레이션 목록 조회 오류: {str(e)}")
+        return flask.jsonify({
+            "Success": False,
+            "Reason": str(e)
+        }), 500
+
+@app.route('/api/admin/errors', methods=['GET'])
+@cross_origin()
+def admin_errors():
+    """최근 에러 목록 조회"""
+    if not check_admin_auth():
+        return flask.jsonify({"Success": False, "Reason": "인증이 필요합니다"}), 401
+
+    try:
+        limit = int(request.args.get('limit', 50))
+        errors = analytics_db.get_recent_errors(limit)
+
+        return flask.jsonify({
+            "Success": True,
+            "data": errors
+        })
+    except Exception as e:
+        logger.error(f"에러 목록 조회 오류: {str(e)}")
+        return flask.jsonify({
+            "Success": False,
+            "Reason": str(e)
+        }), 500
+
+@app.route('/api/admin/export', methods=['GET'])
+@cross_origin()
+def admin_export():
+    """데이터 내보내기 (CSV)"""
+    if not check_admin_auth():
+        return flask.jsonify({"Success": False, "Reason": "인증이 필요합니다"}), 401
+
+    try:
+        export_type = request.args.get('type', 'simulations')
+        days = int(request.args.get('days', 30))
+
+        import csv
+        from io import StringIO
+
+        output = StringIO()
+
+        if export_type == 'simulations':
+            simulations = analytics_db.get_recent_simulations(1000)
+
+            if simulations:
+                writer = csv.DictWriter(output, fieldnames=simulations[0].keys())
+                writer.writeheader()
+                writer.writerows(simulations)
+
+        elif export_type == 'errors':
+            errors = analytics_db.get_recent_errors(1000)
+
+            if errors:
+                writer = csv.DictWriter(output, fieldnames=errors[0].keys())
+                writer.writeheader()
+                writer.writerows(errors)
+
+        response = flask.make_response(output.getvalue())
+        response.headers["Content-Disposition"] = f"attachment; filename={export_type}_{datetime.now().strftime('%Y%m%d')}.csv"
+        response.headers["Content-Type"] = "text/csv"
+
+        return response
+    except Exception as e:
+        logger.error(f"데이터 내보내기 오류: {str(e)}")
+        return flask.jsonify({
+            "Success": False,
+            "Reason": str(e)
+        }), 500
 
 if __name__ == "__main__":
     '''

@@ -6,7 +6,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #E31E24 0%, #B71C1C 100%);
     min-height: 100vh;
     padding: 20px;
     color: #333;
@@ -50,16 +50,16 @@ header p {
 }
 
 .card h2 {
-    color: #667eea;
+    color: #E31E24;
     margin-bottom: 20px;
     font-size: 1.5em;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid #E31E24;
     padding-bottom: 10px;
 }
 
 /* 업로드 영역 */
 .upload-area {
-    border: 2px dashed #667eea;
+    border: 2px dashed #E31E24;
     border-radius: 8px;
     padding: 40px;
     text-align: center;
@@ -69,14 +69,14 @@ header p {
 
 .upload-area:hover {
     background: #e9ecef;
-    border-color: #764ba2;
+    border-color: #B71C1C;
 }
 
 .upload-label {
     display: inline-block;
     cursor: pointer;
     padding: 15px 30px;
-    background: #667eea;
+    background: #E31E24;
     color: white;
     border-radius: 6px;
     font-size: 1.1em;
@@ -84,7 +84,7 @@ header p {
 }
 
 .upload-label:hover {
-    background: #764ba2;
+    background: #B71C1C;
 }
 
 .upload-icon {
@@ -112,12 +112,12 @@ header p {
 }
 
 .btn-primary {
-    background: #667eea;
+    background: #E31E24;
     color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #764ba2;
+    background: #B71C1C;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
@@ -166,7 +166,7 @@ header p {
 
 .form-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #E31E24;
 }
 
 .checkbox-group label {
@@ -215,11 +215,11 @@ header p {
     background: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #E31E24;
 }
 
 .stat-box h3 {
-    color: #667eea;
+    color: #E31E24;
     margin-bottom: 10px;
 }
 
@@ -254,9 +254,9 @@ header p {
 }
 
 .category-filter.active {
-    background: #667eea;
+    background: #E31E24;
     color: white;
-    border-color: #667eea;
+    border-color: #E31E24;
 }
 
 /* 아이템 리스트 */
@@ -271,7 +271,7 @@ header p {
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #E31E24;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -282,7 +282,7 @@ header p {
 }
 
 .item-info h4 {
-    color: #667eea;
+    color: #E31E24;
     margin-bottom: 5px;
 }
 
@@ -314,7 +314,7 @@ header p {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #E31E24 0%, #B71C1C 100%);
     color: white;
     padding: 20px;
     border-radius: 8px;

@@ -7,6 +7,9 @@ import matplotlib.font_manager as fm
 from pathlib import Path
 import platform
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # 프로젝트 내 폰트 디렉토리
 FONT_DIR = Path(__file__).parent.parent.parent / 'fonts'
@@ -14,32 +17,43 @@ FONT_DIR = Path(__file__).parent.parent.parent / 'fonts'
 def download_font_if_needed():
     """필요시 폰트 다운로드"""
     font_path = FONT_DIR / 'NanumGothic.ttf'
-    
+
     if font_path.exists():
         return str(font_path)
-    
+
     # 폰트 디렉토리 생성
     FONT_DIR.mkdir(exist_ok=True)
-    
+
     # 온라인에서 폰트 다운로드 시도
     try:
         import urllib.request
+        from urllib.parse import urlparse
+
+        # 신뢰할 수 있는 도메인 화이트리스트
+        TRUSTED_DOMAINS = ['fonts.gstatic.com', 'github.com', 'raw.githubusercontent.com']
+
         # 여러 URL 시도
         font_urls = [
             'https://fonts.gstatic.com/ea/nanumgothic/v5/NanumGothic-Regular.ttf',
             'https://github.com/naver/nanumfont/raw/master/Desktop/NanumGothic.ttf',
             'https://raw.githubusercontent.com/naver/nanumfont/master/Desktop/NanumGothic.ttf',
         ]
-        
+
         for font_url in font_urls:
             try:
-                print(f"폰트 다운로드 시도: {font_url}")
+                # URL 검증
+                parsed_url = urlparse(font_url)
+                if parsed_url.netloc not in TRUSTED_DOMAINS:
+                    logger.warning(f"신뢰할 수 없는 도메인: {parsed_url.netloc}")
+                    continue
+
+                logger.info(f"폰트 다운로드 시도: {font_url}")
                 urllib.request.urlretrieve(font_url, font_path)
                 if font_path.exists() and os.path.getsize(font_path) > 1000:
-                    print(f"폰트 다운로드 완료: {font_path}")
+                    logger.info(f"폰트 다운로드 완료: {font_path}")
                     return str(font_path)
             except Exception as e:
-                print(f"다운로드 실패: {e}")
+                logger.error(f"다운로드 실패: {e}")
                 continue
         
         return None
@@ -68,8 +82,8 @@ def setup_korean_font():
             try:
                 # 폰트 매니저에 폰트 추가
                 fm.fontManager.addfont(font_path)
-            except:
-                pass
+            except Exception as e:
+                logger.warning(f"폰트 매니저에 폰트 추가 실패: {str(e)}")
             
             print(f"폰트 설정 완료 (파일): {font_name}")
             return font_name

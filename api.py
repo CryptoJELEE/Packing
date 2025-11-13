@@ -4,6 +4,7 @@ import json
 import random
 import os
 import uuid
+import logging
 from datetime import datetime, timedelta
 from typing import Optional, Dict
 from werkzeug.utils import secure_filename
@@ -30,6 +31,13 @@ except ImportError:
 app = flask.Flask(__name__)
 app.config.from_object(Config)
 Config.init_app(app)
+
+# 로깅 설정
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # load data
 try:
@@ -85,8 +93,8 @@ def get_session(session_id: str) -> Optional[Dict]:
                         exp_time = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
                         if exp_time < datetime.now(exp_time.tzinfo):
                             return None
-                    except:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"세션 만료 시간 파싱 오류: {str(e)}")
                 
                 session_data_dict = session.get('data', {})
                 session_data_dict['type'] = session.get('session_type', '')
@@ -124,7 +132,7 @@ def mkResultAPI():
     '''
     res = {"Success": False}
     if flask.request.method == "POST":
-        q= eval(flask.request.data.decode('utf-8'))
+        q = json.loads(flask.request.data.decode('utf-8'))
         if 'box' in q.keys() and 'item' in q.keys() and 'binding' in q.keys():
             try :
                 packer,box,binding = getBoxAndItem(q)
@@ -722,7 +730,7 @@ def cal_packing():
             if request.is_json:
                 q = request.get_json()
             else:
-                q = eval(request.data.decode('utf-8'))
+                q = json.loads(request.data.decode('utf-8'))
             
             # CSV 세션에서 가져오기
             session_id = q.get('session_id')

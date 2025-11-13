@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="3D Bin Packing 시뮬레이션 시스템 - 컨테이너 적재 최적화 솔루션">
+    <meta name="keywords" content="3D 패킹, 적재 최적화, 컨테이너 적재, 빈패킹, 물류 최적화">
+    <meta name="author" content="3D Bin Packing System">
     <title>3D Bin Packing 시뮬레이션</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -19,63 +22,63 @@
                 <h2>1. 자재마스터 업로드</h2>
                 <div id="master-status" class="master-status"></div>
                 <div class="upload-area" id="master-upload-area">
-                    <input type="file" id="master-file" accept=".csv" style="display: none;">
+                    <input type="file" id="master-file" accept=".csv" class="hidden">
                     <label for="master-file" class="upload-label">
                         <span class="upload-icon">📁</span>
                         <span>자재마스터 CSV 파일 선택</span>
                     </label>
-                    <div id="master-file-info" class="file-info" style="display: none;"></div>
+                    <div id="master-file-info" class="file-info hidden"></div>
                 </div>
                 <button id="master-upload-btn" class="btn btn-primary" disabled>마스터 업로드</button>
                 <div id="master-upload-status" class="status-message"></div>
             </section>
 
             <!-- 주문서 업로드 섹션 -->
-            <section id="order-section" class="card" style="display: none;">
+            <section id="order-section" class="card hidden">
                 <h2>2. 주문서 업로드</h2>
                 <p class="info-text">주문서 형식: 제품번호, 제품명, 수량</p>
                 <div class="upload-area" id="order-upload-area">
-                    <input type="file" id="order-file" accept=".csv" style="display: none;">
+                    <input type="file" id="order-file" accept=".csv" class="hidden">
                     <label for="order-file" class="upload-label">
                         <span class="upload-icon">📋</span>
                         <span>주문서 CSV 파일 선택</span>
                     </label>
-                    <div id="order-file-info" class="file-info" style="display: none;"></div>
+                    <div id="order-file-info" class="file-info hidden"></div>
                 </div>
                 <button id="order-upload-btn" class="btn btn-primary" disabled>주문서 업로드</button>
                 <div id="order-upload-status" class="status-message"></div>
-                <div id="order-unmatched" class="unmatched-items" style="display: none;"></div>
+                <div id="order-unmatched" class="unmatched-items hidden"></div>
             </section>
 
             <!-- 기존 CSV 업로드 섹션 (호환성 유지) -->
-            <section id="upload-section" class="card" style="display: none;">
+            <section id="upload-section" class="card hidden">
                 <h2>직접 CSV 파일 업로드 (기존 방식)</h2>
                 <div class="upload-area" id="upload-area">
-                    <input type="file" id="csv-file" accept=".csv" style="display: none;">
+                    <input type="file" id="csv-file" accept=".csv" class="hidden">
                     <label for="csv-file" class="upload-label">
                         <span class="upload-icon">📁</span>
                         <span>CSV 파일 선택</span>
                     </label>
-                    <div id="file-info" class="file-info" style="display: none;"></div>
+                    <div id="file-info" class="file-info hidden"></div>
                 </div>
                 <button id="upload-btn" class="btn btn-primary" disabled>업로드 및 처리</button>
                 <div id="upload-status" class="status-message"></div>
             </section>
 
             <!-- 주문서 아이템 표시 섹션 -->
-            <section id="order-items-section" class="card" style="display: none;">
+            <section id="order-items-section" class="card hidden">
                 <h2>주문서 아이템</h2>
                 <div id="order-items-list" class="items-list"></div>
             </section>
 
             <!-- 데이터 통계 섹션 -->
-            <section id="stats-section" class="card" style="display: none;">
+            <section id="stats-section" class="card hidden">
                 <h2>데이터 통계</h2>
                 <div id="stats-content"></div>
             </section>
 
             <!-- 박스 설정 섹션 -->
-            <section id="box-section" class="card" style="display: none;">
+            <section id="box-section" class="card hidden">
                 <h2>3. 박스 설정</h2>
                 <div class="form-grid">
                     <div class="form-group">
@@ -115,7 +118,7 @@
             </section>
 
             <!-- 아이템 선택 섹션 -->
-            <section id="items-section" class="card" style="display: none;">
+            <section id="items-section" class="card hidden">
                 <h2>4. 아이템 선택</h2>
                 <div class="filter-section">
                     <label>카테고리 필터:</label>
@@ -125,7 +128,7 @@
             </section>
 
             <!-- 시뮬레이션 설정 섹션 -->
-            <section id="sim-section" class="card" style="display: none;">
+            <section id="sim-section" class="card hidden">
                 <h2>5. 시뮬레이션 설정</h2>
                 <div class="form-grid">
                     <div class="form-group checkbox-group">
@@ -170,7 +173,7 @@
             </section>
 
             <!-- 결과 섹션 -->
-            <section id="results-section" class="card" style="display: none;">
+            <section id="results-section" class="card hidden">
                 <h2>시뮬레이션 결과</h2>
                 <div id="results-content">
                     <div id="results-stats" class="results-stats"></div>
@@ -180,19 +183,19 @@
                         <button id="view-detailed-report-btn" class="btn btn-secondary" style="margin-left: 10px;">상세 보고서 보기</button>
                         <button id="view-work-instruction-btn" class="btn btn-secondary" style="margin-left: 10px; background: #28a745; color: white;">작업 지시서 보기</button>
                     </div>
-                    <div id="detailed-reports-list" style="display: none; margin-top: 20px;"></div>
+                    <div id="detailed-reports-list" class="hidden" style="margin-top: 20px;"></div>
                 </div>
             </section>
 
             <!-- 로딩 오버레이 -->
-            <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div id="loading-overlay" class="loading-overlay hidden">
                 <div class="loading-spinner"></div>
                 <p>처리 중...</p>
             </div>
         </main>
     </div>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/app-new.js') }}"></script>
 </body>
 </html>
 

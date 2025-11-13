@@ -362,12 +362,16 @@ header p {
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.7);
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     color: white;
+}
+
+.loading-overlay:not(.hidden) {
+    display: flex;
 }
 
 .loading-spinner {
@@ -437,13 +441,66 @@ header p {
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     header h1 {
         font-size: 2em;
     }
-    
+
     .card {
         padding: 20px;
     }
+}
+
+/* 추가 유틸리티 클래스 */
+.hidden {
+    display: none !important;
+}
+
+.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.report-card {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.report-meta {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.report-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.report-actions a {
+    display: inline-block;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+}
+
+.btn-success {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background: #218838 !important;
 }
 

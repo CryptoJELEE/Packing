@@ -14,88 +14,95 @@ from flask import render_template, send_from_directory, request
 # 새로운 모듈 구조 import
 from core.data.csv_processor import CSVDataProcessor
 from core.packing.pipeline import PackingPipeline
+from core.packing.helpers import PackingSerializer, ColorGenerator
 from core.data.master_manager import MasterDataManager
 from core.data.order_processor import OrderProcessor
-from config.settings import Config
+from config.settings import get_config
+from core.utils import (
+    setup_logger,
+    get_logger,
+    FileValidator,
+    CSVSanitizer,
+    APIResponse,
+    ErrorHandler,
+    SecurityHeaders,
+    setup_rate_limiting
+)
 
-# Supabase 사용 시도
+# 환경 설정 로드
+config_class = get_config()
+
+# Supabase 및 세션 관리
 try:
     from core.storage.supabase_client import supabase_client
+    from core.storage.session_manager import SessionManager
     USE_SUPABASE_SESSION = True
 except ImportError:
+    from core.storage.session_manager import SessionManager
+    supabase_client = None
     USE_SUPABASE_SESSION = False
-    print("Supabase 클라이언트를 사용할 수 없습니다. 인메모리 세션을 사용합니다.")
 
 # init flask
 app = flask.Flask(__name__)
-app.config.from_object(Config)
-Config.init_app(app)
+app.config.from_object(config_class)
+config_class.init_app(app)
+
+# 로거 설정
+logger = setup_logger(
+    name='packing',
+    log_file=app.config.get('LOG_FILE'),
+    level=app.config.get('LOG_LEVEL', 'INFO')
+)
+logger.info(f"애플리케이션 시작 - 환경: {app.config.get('ENV', 'development')}")
+
+if not USE_SUPABASE_SESSION:
+    logger.warning("Supabase 클라이언트를 사용할 수 없습니다. 인메모리 세션을 사용합니다.")
+
+# 에러 핸들러 등록
+ErrorHandler.register_handlers(app)
+
+# 보안 헤더 설정
+SecurityHeaders.init_app(app)
+
+# Rate Limiting 설정 (선택적)
+limiter = setup_rate_limiting(app)
+
+# RL API 라우트 등록
+try:
+    from core.api.rl_routes import register_rl_routes
+    register_rl_routes(app)
+    logger.info("RL API 라우트 등록 완료")
+except ImportError as e:
+    logger.warning(f"RL API 라우트를 등록할 수 없습니다: {e}")
 
 # load data
 try:
-    with open('widadvance.json',encoding='utf-8') as f:
+    with open('widadvance.json', encoding='utf-8') as f:
         alldata = json.load(f)
-except:
+    logger.info("widadvance.json 파일 로드 성공")
+except (FileNotFoundError, json.JSONDecodeError) as e:
+    logger.warning(f"widadvance.json 로드 실패: {e}")
     alldata = {"box": [], "item": []}
 
-# 세션 데이터 저장 (Supabase 우선, 실패 시 인메모리)
-session_data = {}
+# 세션 매니저 초기화
+session_manager = SessionManager(
+    use_supabase=USE_SUPABASE_SESSION,
+    supabase_client=supabase_client if USE_SUPABASE_SESSION else None
+)
 
 # 전역 마스터 매니저
 master_manager = MasterDataManager()
 
-# Supabase 세션 관리 함수
-def save_session(session_id: str, session_type: str, data: dict):
-    """세션을 Supabase에 저장 (실패 시 인메모리)"""
-    if USE_SUPABASE_SESSION:
-        try:
-            sessions_table = supabase_client.get_table('sessions')
-            expires_at = (datetime.now() + timedelta(days=7)).isoformat()
-            
-            sessions_table.upsert({
-                'session_id': session_id,
-                'session_type': session_type,
-                'data': data,
-                'expires_at': expires_at
-            }).execute()
-            return True
-        except Exception as e:
-            print(f"Supabase 세션 저장 오류: {str(e)}, 인메모리로 저장")
-    
-    # 인메모리 저장
-    session_data[session_id] = {
-        'type': session_type,
-        **data
-    }
-    return True
+
+# 세션 관리 래퍼 함수 (하위 호환성)
+def save_session(session_id: str, session_type: str, data: dict) -> bool:
+    """세션 저장 (SessionManager 래퍼)"""
+    return session_manager.save(session_id, session_type, data)
+
 
 def get_session(session_id: str) -> Optional[Dict]:
-    """Supabase에서 세션 조회 (실패 시 인메모리)"""
-    if USE_SUPABASE_SESSION:
-        try:
-            sessions_table = supabase_client.get_table('sessions')
-            response = sessions_table.select("*").eq('session_id', session_id).execute()
-            
-            if response.data and len(response.data) > 0:
-                session = response.data[0]
-                # 만료 확인
-                expires_at = session.get('expires_at')
-                if expires_at:
-                    try:
-                        exp_time = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
-                        if exp_time < datetime.now(exp_time.tzinfo):
-                            return None
-                    except:
-                        pass
-                
-                session_data_dict = session.get('data', {})
-                session_data_dict['type'] = session.get('session_type', '')
-                return session_data_dict
-        except Exception as e:
-            print(f"Supabase 세션 조회 오류: {str(e)}, 인메모리에서 조회")
-    
-    # 인메모리에서 조회
-    return session_data.get(session_id)
+    """세션 조회 (SessionManager 래퍼)"""
+    return session_manager.get(session_id)
 
 # 웹 인터페이스
 @app.route('/')
@@ -124,13 +131,19 @@ def mkResultAPI():
     '''
     res = {"Success": False}
     if flask.request.method == "POST":
-        q= eval(flask.request.data.decode('utf-8'))
+        try:
+            q = flask.request.get_json()
+            if q is None:
+                q = json.loads(flask.request.data.decode('utf-8'))
+        except (json.JSONDecodeError, ValueError) as e:
+            res["Reason"] = f"Invalid JSON: {str(e)}"
+            return flask.jsonify(res)
         if 'box' in q.keys() and 'item' in q.keys() and 'binding' in q.keys():
-            try :
-                packer,box,binding = getBoxAndItem(q)
-            except :
-                res["Reason"] = "input data err"
-                return res
+            try:
+                packer, box, binding = getBoxAndItem(q)
+            except (KeyError, ValueError, TypeError) as e:
+                res["Reason"] = f"Input data error: {str(e)}"
+                return flask.jsonify(res)
             try :
                 # calculate packing
                 packer.pack(bigger_first=True,distribute_items=False,fix_point=True,binding=binding,
@@ -167,58 +180,49 @@ def mkResultAPI():
         return res
 
 
-def makeDictBox(box):
-    position = (int(box.width)/2,int(box.height)/2,int(box.depth)/2)
-    r = {
-            "partNumber" : box.partno,
-            "position" : position,
-            "WHD" : (int(box.width),int(box.height),int(box.depth)),
-            "weight" : int(box.max_weight),
-            "gravity" : box.gravity
-        }
-    return [r]
+def makeDictBox(box: Bin) -> list:
+    """
+    박스를 딕셔너리로 변환
+
+    Args:
+        box: py3dbp Bin 객체
+
+    Returns:
+        박스 정보 딕셔너리 리스트
+    """
+    return [PackingSerializer.serialize_box(box)]
 
 
-def makeDictItem(item):
-    ''' '''
+def makeDictItem(item: Item) -> Dict:
+    """
+    아이템을 딕셔너리로 변환
 
-    if item.rotation_type == 0:
-        pos = (int(item.position[0]) + int(item.width)//2,int(item.position[1])+ int(item.height)//2,int(item.position[2])+ int(item.depth)//2)
-        whd = (int(item.width),int(item.height),int(item.depth))
-    elif item.rotation_type == 1:
-        pos = (int(item.position[0])+ int(item.height)//2,int(item.position[1]) + int(item.width)//2,int(item.position[2])+ int(item.depth)//2)
-        whd = (int(item.height),int(item.width),int(item.depth))
-    elif item.rotation_type == 2:
-        pos = (int(item.position[0])+ int(item.height)//2,int(item.position[1])+ int(item.depth)//2,int(item.position[2]) + int(item.width)//2)
-        whd = (int(item.height),int(item.depth),int(item.width))
-    elif item.rotation_type == 3:
-        pos = (int(item.position[0])+ int(item.depth)//2,int(item.position[1])+ int(item.height)//2,int(item.position[2]) + int(item.width)//2)
-        whd = (int(item.depth),int(item.height),int(item.width))
-    elif item.rotation_type == 4:
-        pos = (int(item.position[0])+ int(item.depth)//2,int(item.position[1]) + int(item.width)//2,int(item.position[2])+ int(item.height)//2)
-        whd = (int(item.depth),int(item.width),int(item.height))
-    elif item.rotation_type == 5:
-        pos = (int(item.position[0]) + int(item.width)//2,int(item.position[1])+ int(item.depth)//2,int(item.position[2])+ int(item.height)//2)
-        whd = (int(item.width),int(item.depth),int(item.height))
-    
-    r = {
-        "partNumber" : item.partno,
-        "name" : item.name,
-        "type" : item.typeof,
-        "color" : item.color,
-        "position" : pos,
-        "rotationType" : item.rotation_type,
-        "WHD" : whd,
-        "weight" : int(item.weight)
-    }
+    Args:
+        item: py3dbp Item 객체
 
-    return r
+    Returns:
+        아이템 정보 딕셔너리
+    """
+    return PackingSerializer.serialize_item(item)
 
 
-def getBoxAndItem(data):
-    ''' '''
+def getBoxAndItem(data: Dict) -> tuple[Packer, Bin, list]:
+    """
+    입력 데이터에서 Packer, Bin, binding 생성
+
+    Args:
+        data: 박스와 아이템 정보를 담은 딕셔너리
+
+    Returns:
+        (packer, box, binding) 튜플
+
+    Raises:
+        KeyError: 필수 키가 없을 때
+        ValueError: 데이터 형식이 잘못되었을 때
+    """
     # init packer
     packer = Packer()
+
     # get bin data
     box_data = data["box"][0]
     box = Bin(
@@ -227,47 +231,44 @@ def getBoxAndItem(data):
         max_weight=box_data['weight'],
         corner=box_data['coner'],
         put_type=box_data['openTop'][0]
-        )
+    )
     packer.addBin(box)
-    # get item data  TODO
+
+    # get item data
     item_data = data["item"]
-    color_dict = {
-        1:'red',
-        2:'yellow',
-        3:'blue',
-        4:'green',
-        5:'purple',
-        6:'brown',
-        7:'orange'
-    }
-    for i in item_data :
-        for j in range(i['count']) :
+    for item_info in item_data:
+        count = item_info['count']
+        for j in range(count):
             packer.addItem(Item(
-            partno = i['name']+'-{}'.format(str(j+1)),
-            name = i['name'],
-            typeof = 'cylinder' if i['type'] == 2 else 'cube',
-            WHD = i['WHD'], 
-            weight = i['weight'],
-            level = 1 if i['level'] == 1 else 2,
-            loadbear = i['loadbear'],
-            updown = bool(i['updown']),
-            color = randColor(i['color']))
-        )
+                partno=f"{item_info['name']}-{j+1}",
+                name=item_info['name'],
+                typeof='cylinder' if item_info['type'] == 2 else 'cube',
+                WHD=item_info['WHD'],
+                weight=item_info['weight'],
+                level=1 if item_info['level'] == 1 else 2,
+                loadbear=item_info['loadbear'],
+                updown=bool(item_info['updown']),
+                color=randColor(item_info['color'])
+            ))
+
+    # get binding data
     binding_data = data['binding']
-    binding = []
-    if len(binding_data) != 0:
-        for i in binding_data :
-            binding.append(tuple(i))
+    binding = [tuple(b) for b in binding_data] if binding_data else []
 
-    return packer,box,binding
+    return packer, box, binding
 
 
-def randColor(s):
-    ''' '''
-    random.seed(s)
-    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+def randColor(seed: int) -> str:
+    """
+    시드값으로 랜덤 색상 생성
 
-    return color
+    Args:
+        seed: 색상 시드값
+
+    Returns:
+        HEX 색상 코드
+    """
+    return ColorGenerator.generate_color(seed)
 
 
 # 마스터 데이터 업로드
@@ -275,46 +276,48 @@ def randColor(s):
 @cross_origin()
 def upload_master():
     """자재마스터 CSV 업로드 및 저장"""
-    res = {"Success": False}
-    
     if 'file' not in request.files:
-        res["Reason"] = "파일이 없습니다"
-        return flask.jsonify(res)
-    
+        return APIResponse.error("파일이 없습니다", status_code=400)
+
     file = request.files['file']
-    if file.filename == '':
-        res["Reason"] = "파일이 선택되지 않았습니다"
-        return flask.jsonify(res)
-    
-    if not file.filename.endswith('.csv'):
-        res["Reason"] = "CSV 파일만 업로드 가능합니다"
-        return flask.jsonify(res)
-    
+
+    # 파일 검증
+    is_valid, error_msg = FileValidator.validate_csv_file(file)
+    if not is_valid:
+        return APIResponse.error(error_msg, status_code=400)
+
     try:
         # 파일 저장
         filename = secure_filename(file.filename)
-        filepath = os.path.join(str(Config.UPLOAD_FOLDER), f"master_{filename}")
-        Config.UPLOAD_FOLDER.mkdir(exist_ok=True)
+        filepath = os.path.join(str(config_class.UPLOAD_FOLDER), f"master_{filename}")
+        config_class.UPLOAD_FOLDER.mkdir(exist_ok=True)
         file.save(filepath)
-        
+        logger.info(f"마스터 CSV 파일 저장: {filepath}")
+
+        # CSV 내용 검증
+        is_valid, error_msg = CSVSanitizer.validate_csv_content(filepath)
+        if not is_valid:
+            os.remove(filepath)  # 잘못된 파일 삭제
+            return APIResponse.error(error_msg, status_code=400)
+
         # CSV 처리
         processor = CSVDataProcessor(filepath)
         items = processor.process_all_items()
-        
+
         # 마스터 데이터에 추가
         master_manager.add_master_items(items)
         stats = master_manager.get_master_stats()
-        
-        res["Success"] = True
-        res["message"] = f"마스터 데이터 {len(items)}개 항목이 저장되었습니다."
-        res["stats"] = stats
-        
-        return flask.jsonify(res)
+
+        logger.info(f"마스터 데이터 {len(items)}개 항목 저장 완료")
+
+        return APIResponse.success(
+            message=f"마스터 데이터 {len(items)}개 항목이 저장되었습니다.",
+            stats=stats,
+            total_items=len(items)
+        )
     except Exception as e:
-        res["Reason"] = f"파일 처리 오류: {str(e)}"
-        import traceback
-        traceback.print_exc()
-        return flask.jsonify(res)
+        logger.error(f"마스터 데이터 업로드 오류: {e}", exc_info=True)
+        return APIResponse.internal_error("파일 처리 중 오류가 발생했습니다", exception=e)
 
 # 마스터 상태 확인
 @app.route('/api/getMasterStatus', methods=['GET'])
@@ -332,37 +335,38 @@ def get_master_status():
 @cross_origin()
 def upload_order():
     """주문서 CSV 업로드 및 처리"""
-    res = {"Success": False}
-    
     if not master_manager.has_master_data():
-        res["Reason"] = "먼저 자재마스터를 업로드해주세요."
-        return flask.jsonify(res)
-    
+        return APIResponse.error("먼저 자재마스터를 업로드해주세요.", status_code=400)
+
     if 'file' not in request.files:
-        res["Reason"] = "파일이 없습니다"
-        return flask.jsonify(res)
-    
+        return APIResponse.error("파일이 없습니다", status_code=400)
+
     file = request.files['file']
-    if file.filename == '':
-        res["Reason"] = "파일이 선택되지 않았습니다"
-        return flask.jsonify(res)
-    
-    if not file.filename.endswith('.csv'):
-        res["Reason"] = "CSV 파일만 업로드 가능합니다"
-        return flask.jsonify(res)
-    
+
+    # 파일 검증
+    is_valid, error_msg = FileValidator.validate_csv_file(file)
+    if not is_valid:
+        return APIResponse.error(error_msg, status_code=400)
+
     try:
         # 파일 저장
         filename = secure_filename(file.filename)
-        filepath = os.path.join(str(Config.UPLOAD_FOLDER), f"order_{filename}")
-        Config.UPLOAD_FOLDER.mkdir(exist_ok=True)
+        filepath = os.path.join(str(config_class.UPLOAD_FOLDER), f"order_{filename}")
+        config_class.UPLOAD_FOLDER.mkdir(exist_ok=True)
         file.save(filepath)
-        
+        logger.info(f"주문 CSV 파일 저장: {filepath}")
+
+        # CSV 내용 검증
+        is_valid, error_msg = CSVSanitizer.validate_csv_content(filepath)
+        if not is_valid:
+            os.remove(filepath)
+            return APIResponse.error(error_msg, status_code=400)
+
         # 주문서 처리
         order_processor = OrderProcessor(master_manager)
         orders = order_processor.read_order_csv(filepath)
         result = order_processor.process_orders_with_master()
-        
+
         # 세션 ID 생성
         session_id = str(uuid.uuid4())
         save_session(session_id, 'order', {
@@ -371,21 +375,21 @@ def upload_order():
             'unmatched_items': result['unmatched_items'],
             'filepath': filepath
         })
-        
-        res["Success"] = True
-        res["session_id"] = session_id
-        res["matched_count"] = len(result['matched_items'])
-        res["unmatched_count"] = len(result['unmatched_items'])
-        res["total_quantity"] = result['total_quantity']
-        res["matched_items"] = result['matched_items'][:50]  # 미리보기
-        res["unmatched_items"] = result['unmatched_items']
-        
-        return flask.jsonify(res)
+
+        logger.info(f"주문서 처리 완료 - 세션ID: {session_id}, 매칭: {len(result['matched_items'])}, 미매칭: {len(result['unmatched_items'])}")
+
+        return APIResponse.success(
+            message="주문서 처리 완료",
+            session_id=session_id,
+            matched_count=len(result['matched_items']),
+            unmatched_count=len(result['unmatched_items']),
+            total_quantity=result['total_quantity'],
+            matched_items=result['matched_items'][:50],  # 미리보기
+            unmatched_items=result['unmatched_items']
+        )
     except Exception as e:
-        res["Reason"] = f"주문서 처리 오류: {str(e)}"
-        import traceback
-        traceback.print_exc()
-        return flask.jsonify(res)
+        logger.error(f"주문서 업로드 오류: {e}", exc_info=True)
+        return APIResponse.internal_error("주문서 처리 중 오류가 발생했습니다", exception=e)
 
 # 주문서 아이템 조회
 @app.route('/api/getOrderItems', methods=['GET'])
@@ -713,16 +717,113 @@ def get_image(filename):
 @app.route('/api/calPacking', methods=['POST'])
 @cross_origin()
 def cal_packing():
-    """패킹 계산 (기존 + CSV 지원)"""
+    """패킹 계산 (기존 + CSV 지원 + RL 모드)"""
     res = {"Success": False}
-    
+
     if request.method == "POST":
         try:
             # JSON 데이터 받기
             if request.is_json:
                 q = request.get_json()
             else:
-                q = eval(request.data.decode('utf-8'))
+                try:
+                    q = json.loads(request.data.decode('utf-8'))
+                except (json.JSONDecodeError, ValueError) as e:
+                    res["Reason"] = f"Invalid JSON: {str(e)}"
+                    return flask.jsonify(res)
+
+            # RL 모드 체크 (mode 파라미터 또는 쿼리 스트링)
+            mode = q.get('mode') or request.args.get('mode', 'baseline')
+
+            # RL 모드 사용 (mode=rl 또는 mode=hybrid)
+            if mode in ['rl', 'hybrid']:
+                try:
+                    from core.rl.model_server import get_model_server
+
+                    # 박스 데이터 추출
+                    box_data = q.get("box", [{}])[0] if isinstance(q.get("box"), list) else q.get("box", {})
+                    container_dims = tuple(box_data.get('WHD', [589.8, 243.8, 259.1]))
+                    max_weight = box_data.get('weight', 28080)
+
+                    # 아이템 데이터 추출
+                    items = []
+                    if 'item' in q:
+                        # 기존 JSON 방식
+                        for item_data in q['item']:
+                            items.append({
+                                'name': item_data.get('name', 'Unknown'),
+                                'width': item_data['WHD'][0],
+                                'height': item_data['WHD'][1],
+                                'depth': item_data['WHD'][2],
+                                'weight': item_data.get('weight', 1),
+                                'level': item_data.get('level', 1),
+                                'loadbear': item_data.get('loadbear', 100),
+                                'updown': item_data.get('updown', True)
+                            })
+                    elif 'session_id' in q and q['session_id'] in session_data:
+                        # CSV 세션 방식
+                        session_info = session_data[q['session_id']]
+                        for item_data in session_info['items']:
+                            items.append({
+                                'name': item_data.get('name', 'Unknown'),
+                                'width': item_data.get('width', 0),
+                                'height': item_data.get('height', 0),
+                                'depth': item_data.get('depth', 0),
+                                'weight': item_data.get('weight', 1),
+                                'level': item_data.get('level', 1),
+                                'loadbear': item_data.get('loadbear', 100),
+                                'updown': item_data.get('updown', True)
+                            })
+
+                    # RL 모델 서버 사용
+                    server = get_model_server(mode='hybrid')
+                    force_mode = 'rl' if mode == 'rl' else None
+
+                    rl_result = server.predict(
+                        container_dims=container_dims,
+                        items=items,
+                        max_weight=max_weight,
+                        force_mode=force_mode
+                    )
+
+                    # 결과 변환 (RL 형식 → 기존 형식)
+                    res["Success"] = True
+                    res["mode"] = mode
+                    res["algorithm"] = rl_result.get('algorithm', 'rl')
+                    res["data"] = {
+                        "box": [{
+                            "name": "Container",
+                            "WHD": list(container_dims),
+                            "weight": max_weight
+                        }],
+                        "fitItem": [
+                            {
+                                "name": item['name'],
+                                "WHD": item['dimensions'],
+                                "position": item['position'],
+                                "rotationType": item['rotation_type'],
+                                "color": item.get('color', 'red')
+                            }
+                            for item in rl_result['packed_items']
+                        ],
+                        "unfitItem": [
+                            {
+                                "name": item['name'],
+                                "WHD": item['dimensions']
+                            }
+                            for item in rl_result['unpacked_items']
+                        ],
+                        "metrics": rl_result['metrics']
+                    }
+                    logger.info(f"RL mode used: {mode}, packed: {rl_result['metrics']['num_packed']}/{len(items)}")
+                    return flask.jsonify(res)
+
+                except ImportError:
+                    logger.warning("RL model server not available, falling back to baseline")
+                    # RL 사용 불가시 기존 방식으로 fallback
+                except Exception as e:
+                    logger.error(f"RL mode failed: {e}, falling back to baseline")
+                    # 에러 발생시 기존 방식으로 fallback
             
             # CSV 세션에서 가져오기
             session_id = q.get('session_id')
@@ -785,8 +886,8 @@ def cal_packing():
                 if 'box' in q.keys() and 'item' in q.keys() and 'binding' in q.keys():
                     try:
                         packer, box, binding = getBoxAndItem(q)
-                    except:
-                        res["Reason"] = "input data err"
+                    except (KeyError, ValueError, TypeError) as e:
+                        res["Reason"] = f"Input data error: {str(e)}"
                         return flask.jsonify(res)
                     try:
                         # calculate packing

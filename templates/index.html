@@ -165,6 +165,31 @@
                             여러 전략을 시도하여 최적의 결과를 선택합니다 (처리 시간이 더 걸릴 수 있습니다)
                         </small>
                     </div>
+
+                    <!-- 알고리즘 선택 -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                            적재 알고리즘 선택
+                        </label>
+                        <div style="display: flex; gap: 20px; align-items: center;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="algorithm-mode" value="baseline" checked>
+                                <span>기존 알고리즘 (안정)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="algorithm-mode" value="hybrid">
+                                <span>AI 하이브리드 (실험) 🤖</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="algorithm-mode" value="rl">
+                                <span>AI 전용 (고급) 🚀</span>
+                            </label>
+                        </div>
+                        <small style="display: block; color: #666; margin-top: 8px;">
+                            💡 <strong>AI 하이브리드</strong>: 기존 알고리즘과 AI를 혼합하여 최적의 결과를 제공합니다 (권장)<br>
+                            💡 <strong>AI 전용</strong>: 학습된 AI 모델만 사용합니다 (실험적, 모델이 없으면 기존 알고리즘으로 대체)
+                        </small>
+                    </div>
                 </div>
                 <button id="run-simulation-btn" class="btn btn-primary">시뮬레이션 실행</button>
             </section>

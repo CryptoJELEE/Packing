@@ -419,6 +419,9 @@ async function runSimulation() {
         });
     }
 
+    // 알고리즘 모드 선택 (추가)
+    const algorithmMode = document.querySelector('input[name="algorithm-mode"]:checked')?.value || 'baseline';
+
     // 시뮬레이션 파라미터
     const simParams = {
         bigger_first: document.getElementById('bigger-first').checked,
@@ -434,7 +437,8 @@ async function runSimulation() {
         session_id: currentSessionId,
         box: boxData,
         item_counts: itemCounts,
-        simulation_params: simParams
+        simulation_params: simParams,
+        mode: algorithmMode  // RL 모드 추가
     };
 
     try {
@@ -491,9 +495,35 @@ function displayResults(data) {
     const resultsStats = document.getElementById('results-stats');
     const resultsImages = document.getElementById('results-images');
 
+    // 알고리즘 정보 표시 (추가)
+    let algorithmBadge = '';
+    if (data.algorithm || data.mode) {
+        const algorithm = data.algorithm || data.mode;
+        let algorithmText = '';
+        let algorithmColor = '#17a2b8';  // 기본 색상
+
+        if (algorithm === 'rl' || algorithm.includes('rl')) {
+            algorithmText = '🚀 AI 전용';
+            algorithmColor = '#28a745';
+        } else if (algorithm === 'hybrid' || algorithm.includes('hybrid')) {
+            algorithmText = '🤖 AI 하이브리드';
+            algorithmColor = '#007bff';
+        } else {
+            algorithmText = '📦 기존 알고리즘';
+            algorithmColor = '#6c757d';
+        }
+
+        algorithmBadge = `
+            <div style="margin-bottom: 15px; padding: 10px; background: ${algorithmColor}20; border-left: 4px solid ${algorithmColor}; border-radius: 4px;">
+                <strong style="color: ${algorithmColor};">사용된 알고리즘:</strong>
+                <span style="font-size: 1.1em; margin-left: 8px;">${algorithmText}</span>
+            </div>
+        `;
+    }
+
     // 통계 표시
     if (data.result && data.result.bins) {
-        let statsHtml = '';
+        let statsHtml = algorithmBadge;  // 알고리즘 배지 추가
         data.result.bins.forEach((bin, index) => {
             statsHtml += `
                 <div class="stat-card">

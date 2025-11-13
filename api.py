@@ -67,6 +67,14 @@ SecurityHeaders.init_app(app)
 # Rate Limiting 설정 (선택적)
 limiter = setup_rate_limiting(app)
 
+# RL API 라우트 등록
+try:
+    from core.api.rl_routes import register_rl_routes
+    register_rl_routes(app)
+    logger.info("RL API 라우트 등록 완료")
+except ImportError as e:
+    logger.warning(f"RL API 라우트를 등록할 수 없습니다: {e}")
+
 # load data
 try:
     with open('widadvance.json', encoding='utf-8') as f:
@@ -709,9 +717,9 @@ def get_image(filename):
 @app.route('/api/calPacking', methods=['POST'])
 @cross_origin()
 def cal_packing():
-    """패킹 계산 (기존 + CSV 지원)"""
+    """패킹 계산 (기존 + CSV 지원 + RL 모드)"""
     res = {"Success": False}
-    
+
     if request.method == "POST":
         try:
             # JSON 데이터 받기
@@ -723,6 +731,99 @@ def cal_packing():
                 except (json.JSONDecodeError, ValueError) as e:
                     res["Reason"] = f"Invalid JSON: {str(e)}"
                     return flask.jsonify(res)
+
+            # RL 모드 체크 (mode 파라미터 또는 쿼리 스트링)
+            mode = q.get('mode') or request.args.get('mode', 'baseline')
+
+            # RL 모드 사용 (mode=rl 또는 mode=hybrid)
+            if mode in ['rl', 'hybrid']:
+                try:
+                    from core.rl.model_server import get_model_server
+
+                    # 박스 데이터 추출
+                    box_data = q.get("box", [{}])[0] if isinstance(q.get("box"), list) else q.get("box", {})
+                    container_dims = tuple(box_data.get('WHD', [589.8, 243.8, 259.1]))
+                    max_weight = box_data.get('weight', 28080)
+
+                    # 아이템 데이터 추출
+                    items = []
+                    if 'item' in q:
+                        # 기존 JSON 방식
+                        for item_data in q['item']:
+                            items.append({
+                                'name': item_data.get('name', 'Unknown'),
+                                'width': item_data['WHD'][0],
+                                'height': item_data['WHD'][1],
+                                'depth': item_data['WHD'][2],
+                                'weight': item_data.get('weight', 1),
+                                'level': item_data.get('level', 1),
+                                'loadbear': item_data.get('loadbear', 100),
+                                'updown': item_data.get('updown', True)
+                            })
+                    elif 'session_id' in q and q['session_id'] in session_data:
+                        # CSV 세션 방식
+                        session_info = session_data[q['session_id']]
+                        for item_data in session_info['items']:
+                            items.append({
+                                'name': item_data.get('name', 'Unknown'),
+                                'width': item_data.get('width', 0),
+                                'height': item_data.get('height', 0),
+                                'depth': item_data.get('depth', 0),
+                                'weight': item_data.get('weight', 1),
+                                'level': item_data.get('level', 1),
+                                'loadbear': item_data.get('loadbear', 100),
+                                'updown': item_data.get('updown', True)
+                            })
+
+                    # RL 모델 서버 사용
+                    server = get_model_server(mode='hybrid')
+                    force_mode = 'rl' if mode == 'rl' else None
+
+                    rl_result = server.predict(
+                        container_dims=container_dims,
+                        items=items,
+                        max_weight=max_weight,
+                        force_mode=force_mode
+                    )
+
+                    # 결과 변환 (RL 형식 → 기존 형식)
+                    res["Success"] = True
+                    res["mode"] = mode
+                    res["algorithm"] = rl_result.get('algorithm', 'rl')
+                    res["data"] = {
+                        "box": [{
+                            "name": "Container",
+                            "WHD": list(container_dims),
+                            "weight": max_weight
+                        }],
+                        "fitItem": [
+                            {
+                                "name": item['name'],
+                                "WHD": item['dimensions'],
+                                "position": item['position'],
+                                "rotationType": item['rotation_type'],
+                                "color": item.get('color', 'red')
+                            }
+                            for item in rl_result['packed_items']
+                        ],
+                        "unfitItem": [
+                            {
+                                "name": item['name'],
+                                "WHD": item['dimensions']
+                            }
+                            for item in rl_result['unpacked_items']
+                        ],
+                        "metrics": rl_result['metrics']
+                    }
+                    logger.info(f"RL mode used: {mode}, packed: {rl_result['metrics']['num_packed']}/{len(items)}")
+                    return flask.jsonify(res)
+
+                except ImportError:
+                    logger.warning("RL model server not available, falling back to baseline")
+                    # RL 사용 불가시 기존 방식으로 fallback
+                except Exception as e:
+                    logger.error(f"RL mode failed: {e}, falling back to baseline")
+                    # 에러 발생시 기존 방식으로 fallback
             
             # CSV 세션에서 가져오기
             session_id = q.get('session_id')

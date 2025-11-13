@@ -39,8 +39,28 @@ class RLModelServer:
 
     def _load_model(self):
         """학습된 모델 로드"""
+        # 1. 먼저 simple_model (.pkl) 시도
+        if self.model_path.endswith('.pkl'):
+            try:
+                from core.rl.simple_model import SimplePackingModel
+
+                self.model = SimplePackingModel.load(self.model_path)
+                self.model_loaded = True
+                self.model_metadata = {
+                    'type': 'simple_packing_model',
+                    'framework': 'scikit-learn'
+                }
+
+                print(f"✓ Simple RL model loaded from: {self.model_path}")
+                return
+
+            except Exception as e:
+                print(f"⚠ Failed to load simple model: {e}")
+                self.model_loaded = False
+                return
+
+        # 2. stable-baselines3 모델 시도
         try:
-            # stable-baselines3가 설치되어 있는 경우만 로드
             from stable_baselines3 import PPO
 
             self.model = PPO.load(self.model_path)
@@ -51,8 +71,13 @@ class RLModelServer:
             if metadata_path.exists():
                 with open(metadata_path, 'r') as f:
                     self.model_metadata = json.load(f)
+            else:
+                self.model_metadata = {
+                    'type': 'ppo_model',
+                    'framework': 'stable-baselines3'
+                }
 
-            print(f"✓ RL model loaded from: {self.model_path}")
+            print(f"✓ PPO model loaded from: {self.model_path}")
 
         except ImportError:
             print("⚠ stable-baselines3 not installed. Using baseline algorithm.")
@@ -446,7 +471,11 @@ def get_model_server(
     if _model_server_instance is None:
         # 환경 변수에서 모델 경로 확인
         if model_path is None:
-            model_path = os.environ.get('RL_MODEL_PATH', 'models/imitation/best_model.zip')
+            # 먼저 simple_model 확인, 없으면 기본 경로
+            default_path = 'core/rl/models/simple_packing_model.pkl'
+            if not os.path.exists(default_path):
+                default_path = 'models/imitation/best_model.zip'
+            model_path = os.environ.get('RL_MODEL_PATH', default_path)
 
         # 모드에 따라 서버 생성
         if mode == 'hybrid':

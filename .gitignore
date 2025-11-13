@@ -84,5 +84,9 @@ dmypy.json
 
 # Project Specific
 widadvance.json
-setup.pycore/rl/models/*.pkl
+setup.py
+
+# RL Models and Data
+core/rl/models/*.pkl
 core/rl/data/*.pkl
+core/rl/data/*.npy

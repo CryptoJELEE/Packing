@@ -11,21 +11,29 @@ class SupabaseClient:
     """Supabase 클라이언트 싱글톤"""
     _instance = None
     _client = None
-    
+    _initialized = False
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(SupabaseClient, cls).__new__(cls)
         return cls._instance
-    
+
     def __init__(self):
-        if self._client is None:
+        if not self._initialized:
+            self._initialized = True
             url = os.getenv("SUPABASE_URL")
             key = os.getenv("SUPABASE_KEY")
-            
+
             if not url or not key:
-                raise ValueError("SUPABASE_URL과 SUPABASE_KEY 환경 변수가 필요합니다.")
-            
-            self._client = create_client(url, key)
+                print("Supabase 환경변수가 설정되지 않았습니다. 로컬 모드로 동작합니다.")
+                self._client = None
+                return
+
+            try:
+                self._client = create_client(url, key)
+            except Exception as e:
+                print(f"Supabase 연결 실패: {e}. 로컬 모드로 동작합니다.")
+                self._client = None
     
     @property
     def client(self) -> Client:

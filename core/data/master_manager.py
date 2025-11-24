@@ -9,10 +9,11 @@ from datetime import datetime
 # Supabase 사용 시도, 실패 시 로컬 파일 사용
 try:
     from core.storage.supabase_client import supabase_client
-    USE_SUPABASE = True
-except ImportError:
+    # 클라이언트가 None이면 로컬 모드
+    USE_SUPABASE = supabase_client._client is not None
+except (ImportError, Exception) as e:
     USE_SUPABASE = False
-    print("Supabase 클라이언트를 사용할 수 없습니다. 로컬 파일 시스템을 사용합니다.")
+    print(f"Supabase 클라이언트를 사용할 수 없습니다. 로컬 파일 시스템을 사용합니다. ({e})")
 
 class MasterDataManager:
     """마스터 데이터 관리 클래스 (Supabase 우선, 실패 시 로컬 파일)"""

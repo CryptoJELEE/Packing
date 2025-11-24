@@ -17,3 +17,5 @@ output/
 uploads/
 *.pyc
 .DS_Store
+*.db
+data/*.db
